@@ -2,9 +2,11 @@
   "name": "karma-parcel",
   "version": "0.0.0",
   "description": "Parcel tests to Karma",
-  "main": "index.js",
+  "main": "dist/karma-parcel-plugin.js",
   "scripts": {
+    "clean": "rm -rf .cache dist",
     "build": "tsc -p .",
+    "prepare": "npm run clean && npm run build",
     "test": "npm run build && karma start"
   },
   "author": "Georgios Valotasios",
@@ -22,5 +24,8 @@
   },
   "dependencies": {
     "tslib": "^1.9.3"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

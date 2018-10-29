@@ -1,6 +1,6 @@
 // import * as karma from "karma";
 import { KarmaFile, KarmaLoggerFactory, Callback } from "./types";
-import Bundler from "parcel-bundler";
+import Bundler = require("parcel-bundler");
 import { readFile } from "fs";
 import { promisify } from "util";
 
@@ -30,4 +30,4 @@ createParcelPreprocessor.$inject = ["logger"];
 export = {
   //parcelPlugin: ["type", KarmaParcelPlugin],
   "preprocessor:parcel": ["factory", createParcelPreprocessor]
-};
+} as any;
