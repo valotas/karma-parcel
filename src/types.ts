@@ -1,10 +1,13 @@
-import { Logger } from "log4js";
-
 export interface KarmaFile {
   originalPath: string;
   relativePath: string;
   path: string;
   sourceMap: string;
+}
+
+export interface Logger {
+  debug(message: any, ...args: any[]): void;
+  info(message: any, ...args: any[]): void;
 }
 
 export type KarmaLoggerFactory = {
