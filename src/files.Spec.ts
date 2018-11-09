@@ -7,9 +7,7 @@ import { promisify } from "util";
 import { BundleFile, EntryFile } from "./files";
 
 describe("files", () => {
-  afterEach(() => {
-    sinon.restore();
-  });
+  afterEach(() => sinon.restore());
 
   it("exports EntryFile", () => {
     assert.ok(EntryFile);
@@ -54,7 +52,7 @@ describe("files", () => {
             .add("/path/to/file")
             .then(() => promisify(fs.readFile)(file.path))
             .then(cont => {
-              assert.equal(cont, `import "/path/to/file";`);
+              assert.equal(cont.toString("utf8"), `import "../path/to/file";`);
             });
         });
       }
