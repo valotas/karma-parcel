@@ -31,6 +31,10 @@ export class ParcelPlugin {
     });
     return bundler.bundle().then(() => this.bundleFile);
   }
+
+  getBundlePath() {
+    return this.bundleFile.path;
+  }
 }
 
 export function createParcelPlugin(logger: KarmaLoggerFactory) {

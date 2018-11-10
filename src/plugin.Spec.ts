@@ -1,12 +1,12 @@
 // eslint-env mocha
 import * as assert from "assert";
-import * as sinon from "sinon";
-import { Logger } from "./types";
-import { ParcelPlugin, createParcelPlugin } from "./plugin";
-import { EntryFile, BundleFile } from "./files";
-import * as path from "path";
-import { promisify } from "util";
 import * as fs from "fs";
+import * as path from "path";
+import * as sinon from "sinon";
+import { promisify } from "util";
+import { BundleFile, EntryFile } from "./files";
+import { createParcelPlugin, ParcelPlugin } from "./plugin";
+import { Logger } from "./types";
 
 describe("plugin", () => {
   let logger: Logger;
@@ -55,7 +55,10 @@ describe("plugin", () => {
 
         return plugin
           .addFile({
-            originalPath: path.join(process.cwd(), "tests/javascript.Spec.js"),
+            originalPath: path.join(
+              process.cwd(),
+              "tests/javascript.Spec.js"
+            ),
             path: "/the/path",
             relativePath: "/relative/path",
             sourceMap: "sourceMaps"
@@ -72,7 +75,10 @@ describe("plugin", () => {
 
         return plugin
           .addFile({
-            originalPath: path.join(process.cwd(), "tests/javascript.Spec.js"),
+            originalPath: path.join(
+              process.cwd(),
+              "tests/javascript.Spec.js"
+            ),
             path: "/the/path",
             relativePath: "/relative/path",
             sourceMap: "sourceMaps"

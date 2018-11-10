@@ -9,9 +9,9 @@ class TmpFile {
 
   path: string;
 
-  constructor(suffix: string) {
+  constructor(name: string) {
     this.dir = os.tmpdir();
-    this.name = `karma-parcel-${suffix}-${Date.now()}.js`;
+    this.name = name;
     this.path = path.join(this.dir, this.name);
   }
 
@@ -22,7 +22,7 @@ class TmpFile {
 
 export class BundleFile extends TmpFile {
   constructor() {
-    super("bundle");
+    super(`karma-parcel-${Date.now()}.js.parcel`);
   }
 }
 
@@ -31,7 +31,7 @@ export class EntryFile extends TmpFile {
   private done = Promise.resolve();
 
   constructor() {
-    super("entry");
+    super(`karma-parcel-entry-${Date.now()}.js`);
     this.files = [];
   }
 
