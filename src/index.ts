@@ -1,24 +1,34 @@
-// import * as karma from "karma";
 import { createParcelFramework } from "./framework";
-import { createParcelPlugin } from "./plugin";
+import { createParcelPlugin, ParcelPlugin } from "./plugin";
 import { Callback, KarmaFile, KarmaLoggerFactory } from "./types";
 
-function createParcelPreprocessor(logger: KarmaLoggerFactory) {
+function createParcelPreprocessor(
+  logger: KarmaLoggerFactory,
+  parcePlugin: ParcelPlugin
+) {
   const log = logger.create("preprocessor:parcel");
 
-  log.info("Created parcel preprocessor");
   return (content: string, file: KarmaFile, next: Callback) => {
-    next(null, `console.log("${file.path}");`);
+    log.debug(`Adding ${file.originalPath} to bundle`);
+
+    parcePlugin.addFile(file).then(() => {
+      next(null, `console.log("${file.path}");`);
+    });
   };
 }
 
-createParcelPreprocessor.$inject = ["logger"];
+createParcelPreprocessor.$inject = ["logger", "parcelPlugin"];
 
-function createParcelBundlePreprocessor() {
+function createParcelBundlePreprocessor(parcePlugin: ParcelPlugin) {
   return (content: string, file: KarmaFile, next: Callback) => {
-    next(null, content);
+    parcePlugin
+      .bundle()
+      .then(file => file.read())
+      .then(content => next(null, content));
   };
 }
+
+createParcelBundlePreprocessor.$inject = ["parcelPlugin"];
 
 export = {
   parcelPlugin: ["factory", createParcelPlugin],

@@ -7,20 +7,29 @@ import Bundler = require("parcel-bundler");
 export class ParcelPlugin {
   private log: Logger;
   private entry: EntryFile;
-  private bundleFile: BundleFile;
+  private bundleFile: BundleFile | null;
 
   constructor(logger: Logger) {
     this.log = logger;
     this.entry = new EntryFile();
-    this.bundleFile = new BundleFile();
+    this.bundleFile = null;
   }
 
-  addFile(file: KarmaFile) {
-    this.log.debug("Adding to the parcel bundle:", file.originalPath);
-    return this.entry.add(file.originalPath);
+  addFile(file: KarmaFile | string) {
+    const path = (file as any).originalPath || file;
+    this.log.debug("Adding to the parcel bundle:", path);
+    return this.entry.add(path);
   }
 
-  bundle() {
+  setBundleFile(file: BundleFile) {
+    this.bundleFile = file;
+  }
+
+  bundle(): Promise<BundleFile> {
+    if (!this.bundleFile) {
+      throw new Error(`No target bundle file`);
+    }
+
     const bundler = new Bundler([this.entry.path], {
       outDir: this.bundleFile.dir,
       outFile: this.bundleFile.name,
@@ -29,11 +38,7 @@ export class ParcelPlugin {
       detailedReport: false,
       logLevel: 1
     });
-    return bundler.bundle().then(() => this.bundleFile);
-  }
-
-  getBundlePath() {
-    return this.bundleFile.path;
+    return bundler.bundle().then(() => this.bundleFile as BundleFile);
   }
 }
 

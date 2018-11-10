@@ -8,10 +8,7 @@ module.exports = function(config) {
     frameworks: ["mocha", "parcel"],
 
     // list of files / patterns to load in the browser
-    // files: ["/tmp/*.parcel"],
-
-    // parcel files
-    parcelFiles: ["src/**/*.Spec.ts", "src/**/*.Spec.js"],
+    files: ["tests/**/*.Spec.ts", "tests/**/*.Spec.js"],
 
     // list of files / patterns to exclude
     exclude: [],
@@ -19,9 +16,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      "**/*.Spec.js": "parcel",
-      "**/*.Spec.ts": "parcel",
-      "/tmp/*.parcel": "parcel-bundle"
+      "tests/*": ["parcel"]
     },
 
     // test results reporter to use

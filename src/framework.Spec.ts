@@ -31,32 +31,37 @@ describe("utils", () => {
       assert.ok(Array.isArray(files));
     });
 
-    it("adds a parcel-bundle preprocessor when parcelFiles are given", () => {
-      const plugin = {
-        getBundlePath() {
-          return "/path/to/bundle.parcel";
-        }
-      } as ParcelPlugin;
+    it("adds a parcel-bundle preprocessor when parcelFiles are given", done => {
+      const plugin = {} as ParcelPlugin;
       const config: any = {
         parcelFiles: ["asd"]
       };
       createParcelFramework(logger, config, plugin);
 
-      assert.ok(config.preprocessors);
-      assert.equal(config.preprocessors["**/*.parcel"], "parcel-bundle");
+      setImmediate(() => {
+        assert.ok(config.preprocessors);
+        assert.equal(config.preprocessors["**/*.parcel"], "parcel-bundle");
+        done();
+      });
     });
 
-    it("adds the bundle file to the fileList", () => {
+    it("adds the bundle file to the fileList", done => {
       const files: any[] = [];
       const bundleFile = "/path/to/bundle.parcel";
-      const plugin = {
-        getBundlePath() {
-          return bundleFile;
-        }
-      } as ParcelPlugin;
+      const plugin = {} as ParcelPlugin;
       createParcelFramework(logger, { files, parcelFiles: ["asd"] }, plugin);
 
-      assert.deepEqual(files, [bundleFile]);
+      setImmediate(() => {
+        assert.deepEqual(files, [
+          {
+            included: true,
+            pattern: bundleFile,
+            served: true,
+            watched: true
+          }
+        ]);
+        done();
+      });
     });
   });
 });

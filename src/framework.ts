@@ -1,5 +1,8 @@
+import * as glob from "glob";
 import { KarmaLoggerFactory } from "./types";
 import { ParcelPlugin } from "./plugin";
+import { promisify } from "util";
+import { BundleFile } from "./files";
 
 export function createParcelFramework(
   logger: KarmaLoggerFactory,
@@ -8,17 +11,24 @@ export function createParcelFramework(
 ) {
   const log = logger.create("framework:parcel");
 
-  if (!conf.parcelFiles) {
-    log.info("No parcelFiles defined in config");
-    return;
-  }
-
-  log.debug(`Creating parcel bundle with files`, conf.parcelFiles);
-
-  conf.files = (conf.files || []).push(parcelPlugin.getBundlePath());
+  log.debug("Adding preprocessor for **/*.parcel");
   conf.preprocessors = Object.assign(conf.preprocessors || {}, {
-    "**/*.parcel": "parcel-bundle"
+    "**/*.parcel": ["parcel-bundle"]
   });
+
+  const bundleFile = new BundleFile();
+  bundleFile.touchSync();
+
+  log.debug(`Adding ${bundleFile.path} to the fileList`);
+  conf.files = conf.files || [];
+  conf.files.push({
+    pattern: bundleFile.path,
+    served: true,
+    included: true,
+    watched: true
+  });
+
+  parcelPlugin.setBundleFile(bundleFile);
 }
 
 createParcelFramework.$inject = ["logger", "config", "parcelPlugin"];
