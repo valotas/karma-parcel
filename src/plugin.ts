@@ -27,7 +27,9 @@ export class ParcelPlugin {
 
   bundle(): Promise<BundleFile> {
     if (!this.bundleFile) {
-      throw new Error(`No target bundle file`);
+      throw new Error(
+        "No target bundle file. Make sure you call 'setBundleFile' before 'bundle'"
+      );
     }
 
     const bundler = new Bundler([this.entry.path], {

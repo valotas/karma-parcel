@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as sinon from "sinon";
 import { promisify } from "util";
-import { BundleFile, EntryFile } from "./files";
+import { EntryFile, IFile, createBundleFile } from "./files";
 import { createParcelPlugin, ParcelPlugin } from "./plugin";
 import { Logger } from "./types";
 
@@ -52,33 +52,27 @@ describe("plugin", () => {
     describe("bundle", () => {
       it("emits the bundled content into a bundle file", () => {
         const plugin = new ParcelPlugin(logger);
+        plugin.setBundleFile(createBundleFile());
 
         return plugin
           .addFile({
-            originalPath: path.join(
-              process.cwd(),
-              "tests/javascript.Spec.js"
-            ),
+            originalPath: path.join(process.cwd(), "tests/javascript.Spec.js"),
             path: "/the/path",
             relativePath: "/relative/path",
             sourceMap: "sourceMaps"
           })
-          .then(() => {
-            return plugin.bundle();
-          })
-          .then((bundleFile: BundleFile) => bundleFile.exists())
+          .then(() => plugin.bundle())
+          .then((bundleFile: IFile) => bundleFile.exists())
           .then((exists: boolean) => assert.equal(exists, true));
       });
 
       it("emits content of more than one file", () => {
         const plugin = new ParcelPlugin(logger);
+        plugin.setBundleFile(createBundleFile());
 
         return plugin
           .addFile({
-            originalPath: path.join(
-              process.cwd(),
-              "tests/javascript.Spec.js"
-            ),
+            originalPath: path.join(process.cwd(), "tests/javascript.Spec.js"),
             path: "/the/path",
             relativePath: "/relative/path",
             sourceMap: "sourceMaps"
@@ -95,9 +89,7 @@ describe("plugin", () => {
             })
           )
           .then(() => plugin.bundle())
-          .then((bundleFile: BundleFile) =>
-            promisify(fs.readFile)(bundleFile.path)
-          )
+          .then((bundleFile: IFile) => promisify(fs.readFile)(bundleFile.path))
           .then(buffer => {
             const content = buffer.toString("utf8");
             assert.ok(content.indexOf(`describe("js-with-import",`));

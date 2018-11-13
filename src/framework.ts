@@ -1,8 +1,6 @@
-import * as glob from "glob";
 import { KarmaLoggerFactory } from "./types";
 import { ParcelPlugin } from "./plugin";
-import { promisify } from "util";
-import { BundleFile } from "./files";
+import { createBundleFile } from "./files";
 
 export function createParcelFramework(
   logger: KarmaLoggerFactory,
@@ -16,8 +14,7 @@ export function createParcelFramework(
     "**/*.parcel": ["parcel-bundle"]
   });
 
-  const bundleFile = new BundleFile();
-  bundleFile.touchSync();
+  const bundleFile = createBundleFile();
 
   log.debug(`Adding ${bundleFile.path} to the fileList`);
   conf.files = conf.files || [];

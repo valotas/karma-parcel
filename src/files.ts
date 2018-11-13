@@ -3,7 +3,17 @@ import * as os from "os";
 import * as path from "path";
 import { promisify } from "util";
 
-class TmpFile {
+export interface IFile {
+  dir: string;
+  name: string;
+  path: string;
+  exists: () => Promise<any>;
+  touch: () => Promise<any>;
+  write: (str: string) => Promise<any>;
+  read: () => Promise<Buffer>;
+}
+
+class TmpFile implements IFile {
   dir: string;
   name: string;
   path: string;
@@ -33,23 +43,19 @@ class TmpFile {
     );
     return this.done;
   }
-}
-
-export class BundleFile extends TmpFile {
-  constructor() {
-    super(`karma-parcel-${Date.now()}.js.parcel`);
-  }
-
-  touchSync() {
-    if (fs.existsSync(this.path)) {
-      return;
-    }
-    fs.writeFileSync(this.path, "");
-  }
 
   read() {
     return promisify(fs.readFile)(this.path);
   }
+}
+
+export function createBundleFile(): TmpFile {
+  const bundleFile = new TmpFile(`karma-parcel-${Date.now()}.js.parcel`);
+  if (fs.existsSync(bundleFile.path)) {
+    return bundleFile;
+  }
+  fs.writeFileSync(bundleFile.path, "");
+  return bundleFile;
 }
 
 export class EntryFile extends TmpFile {

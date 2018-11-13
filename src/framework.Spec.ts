@@ -1,11 +1,12 @@
 // eslint-env mocha
 import * as assert from "assert";
 import * as sinon from "sinon";
+import * as files from "./files";
 import { createParcelFramework } from "./framework";
 import { ParcelPlugin } from "./plugin";
 import { KarmaLoggerFactory } from "./types";
 
-describe("utils", () => {
+describe("framework", () => {
   let logger: KarmaLoggerFactory;
 
   beforeEach(() => {
@@ -20,39 +21,20 @@ describe("utils", () => {
   afterEach(() => sinon.restore());
 
   describe("createParcelFramework", () => {
-    it("does nothing if no parcelFiles are given", () => {
-      const files: any[] = [];
-      const config = {
-        files: JSON.parse(JSON.stringify(files))
-      };
-      createParcelFramework(logger, config, {} as ParcelPlugin);
-
-      assert.ok(files);
-      assert.ok(Array.isArray(files));
-    });
-
-    it("adds a parcel-bundle preprocessor when parcelFiles are given", done => {
-      const plugin = {} as ParcelPlugin;
-      const config: any = {
-        parcelFiles: ["asd"]
-      };
-      createParcelFramework(logger, config, plugin);
-
-      setImmediate(() => {
-        assert.ok(config.preprocessors);
-        assert.equal(config.preprocessors["**/*.parcel"], "parcel-bundle");
-        done();
-      });
-    });
-
     it("adds the bundle file to the fileList", done => {
-      const files: any[] = [];
+      const configFiles: any[] = [];
       const bundleFile = "/path/to/bundle.parcel";
-      const plugin = {} as ParcelPlugin;
-      createParcelFramework(logger, { files, parcelFiles: ["asd"] }, plugin);
+      sinon.stub(files, "createBundleFile").returns({ path: bundleFile });
+      const plugin = { setBundleFile: sinon.stub() };
+
+      createParcelFramework(
+        logger,
+        { files: configFiles },
+        (plugin as any) as ParcelPlugin
+      );
 
       setImmediate(() => {
-        assert.deepEqual(files, [
+        assert.deepEqual(configFiles, [
           {
             included: true,
             pattern: bundleFile,
