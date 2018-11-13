@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as sinon from "sinon";
 import { promisify } from "util";
-import { EntryFile, createBundleFile } from "./files";
+import { createBundleFile, EntryFile } from "./files";
 
 describe("files", () => {
   afterEach(() => sinon.restore());

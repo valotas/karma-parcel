@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as sinon from "sinon";
 import { promisify } from "util";
-import { EntryFile, IFile, createBundleFile } from "./files";
+import { createBundleFile, EntryFile, IFile } from "./files";
 import { createParcelPlugin, ParcelPlugin } from "./plugin";
 import { Logger } from "./types";
 
