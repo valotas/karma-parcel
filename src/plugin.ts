@@ -1,13 +1,13 @@
 import * as os from "os";
 import * as path from "path";
-import { BundleFile, EntryFile } from "./files";
+import { EntryFile, IFile } from "./files";
 import { KarmaFile, KarmaLoggerFactory, Logger } from "./types";
 import Bundler = require("parcel-bundler");
 
 export class ParcelPlugin {
   private log: Logger;
   private entry: EntryFile;
-  private bundleFile: BundleFile | null;
+  private bundleFile: IFile | null;
 
   constructor(logger: Logger) {
     this.log = logger;
@@ -21,11 +21,11 @@ export class ParcelPlugin {
     return this.entry.add(path);
   }
 
-  setBundleFile(file: BundleFile) {
+  setBundleFile(file: IFile) {
     this.bundleFile = file;
   }
 
-  bundle(): Promise<BundleFile> {
+  bundle(): Promise<IFile> {
     if (!this.bundleFile) {
       throw new Error(
         "No target bundle file. Make sure you call 'setBundleFile' before 'bundle'"
@@ -40,7 +40,7 @@ export class ParcelPlugin {
       detailedReport: false,
       logLevel: 1
     });
-    return bundler.bundle().then(() => this.bundleFile as BundleFile);
+    return bundler.bundle().then(() => this.bundleFile as IFile);
   }
 }
 
