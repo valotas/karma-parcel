@@ -12,6 +12,7 @@
     "karma": "npm run build && karma start"
   },
   "author": "Georgios Valotasios",
+  "license": "MIT",
   "devDependencies": {
     "@types/karma": "^3.0.0",
     "@types/log4js": "^2.3.5",
