@@ -1,10 +1,12 @@
+import { ConfigOptions } from "karma";
 import { createParcelFramework } from "./framework";
 import { createParcelPlugin, ParcelPlugin } from "./plugin";
 import { Callback, KarmaFile, KarmaLoggerFactory } from "./types";
 
 function createParcelPreprocessor(
   logger: KarmaLoggerFactory,
-  parcePlugin: ParcelPlugin
+  parcePlugin: ParcelPlugin,
+  config: ConfigOptions
 ) {
   const log = logger.create("preprocessor:parcel");
 
@@ -12,12 +14,16 @@ function createParcelPreprocessor(
     log.debug(`Adding ${file.originalPath} to bundle`);
 
     parcePlugin.addFile(file).then(() => {
-      next(null, `console.log("${file.path}");`);
+      if (config.logLevel === (config as any).LOG_DEBUG) {
+        next(null, `console.log("${file.path}");`);
+      } else {
+        next(null, `/* ${file.path} */`);
+      }
     });
   };
 }
 
-createParcelPreprocessor.$inject = ["logger", "parcelPlugin"];
+createParcelPreprocessor.$inject = ["logger", "parcelPlugin", "config"];
 
 function createParcelBundlePreprocessor(parcePlugin: ParcelPlugin) {
   return (content: string, file: KarmaFile, next: Callback) => {

@@ -7,9 +7,10 @@
     "clean": "rm -rf .cache dist",
     "build": "tsc -p .",
     "prepare": "npm run clean && npm run build",
-    "test": "mocha -r ts-node/register src/**/*.Spec.ts",
-    "watch": "npm run test -- -w --reporter dot --watch-extensions ts",
-    "karma": "npm run build && karma start"
+    "mocha": "mocha -r ts-node/register src/**/*.Spec.ts",
+    "karma": "npm run build && karma start tests/karma.conf.js",
+    "test": "npm run mocha && npm run karma",
+    "watch": "npm run test -- -w --reporter dot --watch-extensions ts"
   },
   "author": "Georgios Valotasios",
   "license": "MIT",
