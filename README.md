@@ -1,5 +1,7 @@
 # Karma Parcel
 
+[![Build Status](https://travis-ci.org/valotas/karma-parcel.svg?branch=master)](https://travis-ci.org/valotas/karma-parcel)
+
 Use [parcel][] to preprocess [karma][] tests
 
 ## Install
@@ -26,11 +28,23 @@ module.exports = function (config) {
     // let karma know which of the test files should be bundled
     // with parcel
     preprocessors: {
-      "tests/*": ["parcel"]
+      "parcel/*": ["parcel"]
     }
   });
 };
 ```
 
+## Under the hood
+
+Parcel will create one bundle will all the files that are preprocessed with
+the `parcel` preprocessor. The preprocessor will emit an empty file instead of
+the actual content. The plugin will register the bundle file to karma's
+fileList and therefor it's content will properly be evaluated.
+
+# Related
+
+This plugin is heavily inspired by [`karma-browserify`][karma-browserify]
+
 [parcel]: https://parceljs.org/
 [karma]: https://karma-runner.github.io
+[karma-browserify]: https://github.com/nikku/karma-browserify
