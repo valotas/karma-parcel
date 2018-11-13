@@ -13,6 +13,18 @@
     "watch": "npm run test -- -w --reporter dot --watch-extensions ts"
   },
   "author": "Georgios Valotasios",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/valotas/karma-parcel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/valotas/karma-parcel/issues"
+  },
+  "homepage": "https://github.com/valotas/karma-parcel",
+  "keywords": [
+    "parcel",
+    "karma"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/karma": "^3.0.0",
