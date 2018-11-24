@@ -56,7 +56,10 @@ describe("plugin", () => {
 
         return plugin
           .addFile({
-            originalPath: path.join(process.cwd(), "tests/javascript.Spec.js"),
+            originalPath: path.join(
+              process.cwd(),
+              "tests/fixtures/javascript.Spec.js"
+            ),
             path: "/the/path",
             relativePath: "/relative/path",
             sourceMap: "sourceMaps"
@@ -72,7 +75,10 @@ describe("plugin", () => {
 
         return plugin
           .addFile({
-            originalPath: path.join(process.cwd(), "tests/javascript.Spec.js"),
+            originalPath: path.join(
+              process.cwd(),
+              "tests/fixtures/javascript.Spec.js"
+            ),
             path: "/the/path",
             relativePath: "/relative/path",
             sourceMap: "sourceMaps"
@@ -81,7 +87,7 @@ describe("plugin", () => {
             plugin.addFile({
               originalPath: path.join(
                 process.cwd(),
-                "tests/js-with-import.Spec.js"
+                "tests/fixtures/js-with-import.Spec.js"
               ),
               path: "/the/path/2",
               relativePath: "/relative/path/2",

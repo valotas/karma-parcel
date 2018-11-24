@@ -8,8 +8,8 @@
     "build": "tsc -p .",
     "prepare": "npm run clean && npm run build",
     "mocha": "mocha -r ts-node/register src/**/*.Spec.ts",
-    "karma": "npm run build && karma start tests/karma.conf.js",
-    "test": "npm run mocha && npm run karma",
+    "integration": "mocha -r ts-node/register tests/integration-test.ts",
+    "test": "npm run mocha && npm run integration",
     "watch": "npm run test -- -w --reporter dot --watch-extensions ts"
   },
   "author": "Georgios Valotasios",
