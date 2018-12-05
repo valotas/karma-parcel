@@ -10,7 +10,7 @@
     "mocha": "mocha -r ts-node/register src/**/*.Spec.ts",
     "integration": "mocha -r ts-node/register tests/integration-test.ts",
     "test": "npm run mocha && npm run integration",
-    "watch": "npm run test -- -w --reporter dot --watch-extensions ts"
+    "watch": "npm run mocha -- -w --reporter dot --watch-extensions ts"
   },
   "author": "Georgios Valotasios",
   "repository": {

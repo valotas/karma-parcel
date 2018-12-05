@@ -67,7 +67,7 @@ describe("plugin", () => {
           .then(() => plugin.bundle())
           .then((bundleFile: IFile) => bundleFile.exists())
           .then((exists: boolean) => assert.equal(exists, true));
-      });
+      }).timeout(10000);
 
       it("emits content of more than one file", () => {
         const plugin = new ParcelPlugin(logger);
@@ -101,7 +101,7 @@ describe("plugin", () => {
             assert.ok(content.indexOf(`describe("js-with-import",`));
             assert.ok(content.indexOf(`describe("javascript",`));
           });
-      });
+      }).timeout(10000);
     });
   });
 });
