@@ -2,6 +2,7 @@
 import * as assert from "assert";
 import * as fs from "fs";
 import * as os from "os";
+import * as path from "path";
 import * as sinon from "sinon";
 import { promisify } from "util";
 import { createBundleFile, EntryFile } from "./files";
@@ -47,6 +48,31 @@ describe("files", () => {
         .then(() => promisify(fs.readFile)(file.path))
         .then(cont => {
           assert.equal(cont.toString("utf8"), `import "../path/to/file";`);
+        });
+    });
+
+    it("adds the files relative to the dir", () => {
+      const tmpDir = path.join(os.tmpdir(), "karma-parcel-tmp");
+      sinon.stub(os, "tmpdir").returns(tmpDir);
+
+      return promisify(fs.mkdir)(tmpDir)
+        .catch(err => {
+          if (err.code === "EEXIST") {
+            return;
+          }
+          throw err;
+        })
+        .then(() => {
+          const file = new EntryFile();
+          return file
+            .add("/path/other/file")
+            .then(() => promisify(fs.readFile)(file.path))
+            .then(cont => {
+              assert.equal(
+                cont.toString("utf8"),
+                `import "../../path/other/file";`
+              );
+            });
         });
     });
   });

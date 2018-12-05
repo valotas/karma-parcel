@@ -68,7 +68,13 @@ export class EntryFile extends TmpFile {
 
   add(path: string) {
     this.files.push(path);
-    const content = this.files.map(f => `import "..${f}";`).join("\n");
+    const content = this.files
+      .map(f => `import "${this.importPath(f)}";`)
+      .join("\n");
     return this.write(content);
+  }
+
+  private importPath(file: string) {
+    return path.relative(this.dir, file).replace(/\\/g, "/");
   }
 }
