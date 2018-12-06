@@ -4,17 +4,23 @@ import * as fs from "fs";
 import * as path from "path";
 import * as sinon from "sinon";
 import { promisify } from "util";
+import * as bundler from "./bunlder";
 import { createBundleFile, EntryFile, IFile } from "./files";
 import { createParcelPlugin, ParcelPlugin } from "./plugin";
 import { Logger } from "./types";
+import karma = require("karma");
 
 describe("plugin", () => {
   let logger: Logger;
+  let karmaConf: karma.ConfigOptions;
 
   beforeEach(() => {
     logger = {
       info: sinon.stub(),
       debug: sinon.stub()
+    };
+    karmaConf = {
+      autoWatch: false
     };
   });
 
@@ -34,7 +40,7 @@ describe("plugin", () => {
     describe("addFile", () => {
       it("writes the file to the underlying entry file", () => {
         const add = sinon.stub(EntryFile.prototype, "add").resolves(null);
-        const plugin = new ParcelPlugin(logger);
+        const plugin = new ParcelPlugin(logger, karmaConf);
 
         return plugin
           .addFile({
@@ -51,7 +57,7 @@ describe("plugin", () => {
 
     describe("bundle", () => {
       it("emits the bundled content into a bundle file", () => {
-        const plugin = new ParcelPlugin(logger);
+        const plugin = new ParcelPlugin(logger, karmaConf);
         plugin.setBundleFile(createBundleFile());
 
         return plugin
@@ -70,7 +76,7 @@ describe("plugin", () => {
       }).timeout(10000);
 
       it("emits content of more than one file", () => {
-        const plugin = new ParcelPlugin(logger);
+        const plugin = new ParcelPlugin(logger, karmaConf);
         plugin.setBundleFile(createBundleFile());
 
         return plugin
@@ -102,6 +108,52 @@ describe("plugin", () => {
             assert.ok(content.indexOf(`describe("javascript",`));
           });
       }).timeout(10000);
+
+      it("does only bundle once", () => {
+        const bundle = sinon.stub(bundler, "bundle").resolves({});
+        const plugin = new ParcelPlugin(logger, karmaConf);
+        plugin.setBundleFile(createBundleFile());
+
+        return plugin
+          .addFile({
+            originalPath: path.join(
+              process.cwd(),
+              "tests/fixtures/javascript.Spec.js"
+            ),
+            path: "/the/path",
+            relativePath: "/relative/path",
+            sourceMap: "sourceMaps"
+          })
+          .then(() => plugin.bundle())
+          .then(() => sinon.assert.calledOnce(bundle))
+          .then(() => plugin.bundle())
+          .then(() => sinon.assert.calledOnce(bundle));
+      });
+
+      it("passes to the bundle watch = true when autoWatch == true", () => {
+        const bundle = sinon.stub(bundler, "bundle").resolves({});
+        const plugin = new ParcelPlugin(logger, {
+          autoWatch: true
+        });
+        plugin.setBundleFile(createBundleFile());
+
+        return plugin
+          .addFile({
+            originalPath: path.join(
+              process.cwd(),
+              "tests/fixtures/javascript.Spec.js"
+            ),
+            path: "/the/path",
+            relativePath: "/relative/path",
+            sourceMap: "sourceMaps"
+          })
+          .then(() => plugin.bundle())
+          .then(() => {
+            sinon.assert.calledWithMatch(bundle, sinon.match.any, {
+              watch: true
+            });
+          });
+      });
     });
   });
 });
