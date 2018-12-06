@@ -23,7 +23,6 @@ export class ParcelPlugin {
 
   addFile(file: KarmaFile | string) {
     const path = (file as any).originalPath || file;
-    this.log.debug("Adding to the parcel bundle:", path);
     return this.entry.add(path);
   }
 
@@ -42,14 +41,21 @@ export class ParcelPlugin {
         "No target bundle file. Make sure you call 'setBundleFile' before 'bundle'"
       );
     }
-    return bundle(this.entry.path, {
-      outDir: this.bundleFile.dir,
-      outFile: this.bundleFile.name,
-      cacheDir: path.join(os.tmpdir(), "karma-parcel-cache"),
-      watch: this.karmaConf.autoWatch || false,
-      detailedReport: false,
-      logLevel: 1
-    });
+    return bundle(
+      this.entry.path,
+      {
+        outDir: this.bundleFile.dir,
+        outFile: this.bundleFile.name,
+        cacheDir: path.join(os.tmpdir(), "karma-parcel-cache"),
+        watch: this.karmaConf.autoWatch || false,
+        detailedReport: false,
+        logLevel: 1
+      },
+      () => {
+        const bundleFilePath = this.bundleFile ? this.bundleFile.path : "";
+        this.log.debug(`Wrote bundled test: ${bundleFilePath}`);
+      }
+    );
   }
 }
 
