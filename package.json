@@ -8,7 +8,7 @@
     "build": "tsc -p .",
     "prepare": "npm run clean && npm run build",
     "mocha": "mocha -r ts-node/register src/**/*.Spec.ts",
-    "integration": "mocha -r ts-node/register tests/integration-test.ts",
+    "integration": "mocha -r ts-node/register tests/integration-test.ts --timeout 10000",
     "test": "npm run mocha && npm run integration",
     "watch": "npm run mocha -- -w --reporter dot --watch-extensions ts"
   },

@@ -32,7 +32,6 @@ function run(options: karma.ConfigOptions = {}): Promise<karma.TestResults> {
 describe("integration test", () => {
   it("runs js tests", () => {
     return run({
-      //files: ["./**/*.Spec.ts", "./**/*.Spec.js", "./**/*-test.js"]
       files: ["./**/javascript.Spec.js"]
     }).then(results => {
       assert.ok(results);
