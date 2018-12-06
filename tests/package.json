@@ -1,0 +1,9 @@
+{
+  "name": "karma-parcel-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "integration-test.js",
+  "scripts": {
+    "watch": "../node_modules/.bin/karma start fixtures/karma.conf.js --no-single-run --auto-watch --log-level debug --reporter dot"
+  }
+}
