@@ -75,6 +75,10 @@ export class EntryFile extends TmpFile {
   }
 
   private importPath(file: string) {
-    return path.relative(this.dir, file).replace(/\\/g, "/");
+    const relativePath = path.relative(this.dir, file).replace(/\\/g, "/");
+    if (relativePath.indexOf(".") !== 0) {
+      return `./${relativePath}`;
+    }
+    return relativePath;
   }
 }
