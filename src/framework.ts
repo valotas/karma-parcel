@@ -22,7 +22,7 @@ export function createParcelFramework(
     pattern: bundleFile.path,
     served: true,
     included: true,
-    watched: true
+    watched: false
   });
 
   parcelPlugin.setBundleFile(bundleFile);

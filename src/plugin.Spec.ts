@@ -10,6 +10,12 @@ import { createParcelPlugin, ParcelPlugin } from "./plugin";
 import { Logger } from "./types";
 import karma = require("karma");
 
+class EmitterStub {
+  refreshFile() {
+    // do nothing
+  }
+}
+
 describe("plugin", () => {
   let logger: Logger;
   let karmaConf: karma.ConfigOptions;
@@ -40,7 +46,7 @@ describe("plugin", () => {
     describe("addFile", () => {
       it("writes the file to the underlying entry file", () => {
         const add = sinon.stub(EntryFile.prototype, "add").resolves(null);
-        const plugin = new ParcelPlugin(logger, karmaConf);
+        const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
 
         return plugin
           .addFile({
@@ -57,7 +63,7 @@ describe("plugin", () => {
 
     describe("bundle", () => {
       it("emits the bundled content into a bundle file", () => {
-        const plugin = new ParcelPlugin(logger, karmaConf);
+        const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
         plugin.setBundleFile(createBundleFile());
 
         return plugin
@@ -76,7 +82,7 @@ describe("plugin", () => {
       }).timeout(10000);
 
       it("emits content of more than one file", () => {
-        const plugin = new ParcelPlugin(logger, karmaConf);
+        const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
         plugin.setBundleFile(createBundleFile());
 
         return plugin
@@ -111,7 +117,7 @@ describe("plugin", () => {
 
       it("does only bundle once", () => {
         const bundle = sinon.stub(bundler, "bundle").resolves({});
-        const plugin = new ParcelPlugin(logger, karmaConf);
+        const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
         plugin.setBundleFile(createBundleFile());
 
         return plugin
@@ -132,9 +138,13 @@ describe("plugin", () => {
 
       it("passes to the bundle watch = true when autoWatch == true", () => {
         const bundle = sinon.stub(bundler, "bundle").resolves({});
-        const plugin = new ParcelPlugin(logger, {
-          autoWatch: true
-        });
+        const plugin = new ParcelPlugin(
+          logger,
+          {
+            autoWatch: true
+          },
+          new EmitterStub()
+        );
         plugin.setBundleFile(createBundleFile());
 
         return plugin
