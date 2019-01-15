@@ -39,7 +39,7 @@ describe("framework", () => {
             included: true,
             pattern: bundleFile,
             served: true,
-            watched: true
+            watched: false
           }
         ]);
         done();

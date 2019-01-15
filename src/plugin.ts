@@ -1,9 +1,10 @@
 import * as os from "os";
 import * as path from "path";
-import { EntryFile, IFile } from "./files";
-import { KarmaFile, KarmaLoggerFactory, Logger } from "./types";
-import Bundler = require("parcel-bundler");
 import { bundle } from "./bunlder";
+import { EntryFile, IFile } from "./files";
+import { KarmaFile, KarmaLoggerFactory, Logger, KarmaEmitter } from "./types";
+import { throttle } from "./utils";
+import Bundler = require("parcel-bundler");
 import karma = require("karma");
 
 export class ParcelPlugin {
@@ -12,13 +13,15 @@ export class ParcelPlugin {
   private bundleFile: IFile | null;
   private karmaConf: karma.ConfigOptions;
   private bundlePromise: Promise<Bundler.ParcelBundle> | null;
+  private emitter: KarmaEmitter;
 
-  constructor(logger: Logger, conf: karma.ConfigOptions) {
+  constructor(logger: Logger, conf: karma.ConfigOptions, emitter: any) {
     this.log = logger;
     this.entry = new EntryFile();
     this.bundleFile = null;
     this.karmaConf = conf;
     this.bundlePromise = null;
+    this.emitter = emitter;
   }
 
   addFile(file: KarmaFile | string) {
@@ -51,19 +54,23 @@ export class ParcelPlugin {
         detailedReport: false,
         logLevel: 1
       },
-      () => {
+      throttle(() => {
         const bundleFilePath = this.bundleFile ? this.bundleFile.path : "";
         this.log.debug(`Wrote bundled test: ${bundleFilePath}`);
-      }
+        if (this.bundleFile) {
+          this.emitter.refreshFile(this.bundleFile.path);
+        }
+      }, 500)
     );
   }
 }
 
 export function createParcelPlugin(
   logger: KarmaLoggerFactory,
-  config: karma.ConfigOptions
+  config: karma.ConfigOptions,
+  emitter: KarmaEmitter
 ) {
-  return new ParcelPlugin(logger.create("parcel"), config);
+  return new ParcelPlugin(logger.create("parcel"), config, emitter);
 }
 
-createParcelPlugin.$inject = ["logger", "config"];
+createParcelPlugin.$inject = ["logger", "config", "emitter"];

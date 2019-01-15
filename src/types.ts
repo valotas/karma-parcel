@@ -15,3 +15,7 @@ export type KarmaLoggerFactory = {
 };
 
 export type Callback<T = any> = (e: Error | null, result?: T) => void;
+
+export interface KarmaEmitter {
+  refreshFile(file: String): void;
+}

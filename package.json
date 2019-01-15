@@ -9,7 +9,7 @@
     "prepare": "npm run clean && npm run build",
     "mocha": "mocha -r ts-node/register src/**/*.Spec.ts",
     "integration": "mocha -r ts-node/register tests/integration-test.ts --timeout 10000",
-    "test": "npm run mocha && npm run integration",
+    "test": "npm run mocha && npm run integration && ./integration-test.sh",
     "watch": "npm run mocha -- -w --reporter dot --watch-extensions ts"
   },
   "author": "Georgios Valotasios",

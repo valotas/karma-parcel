@@ -75,5 +75,30 @@ describe("files", () => {
             });
         });
     });
+
+    it("adds './' to the imported file if needed", () => {
+      const tmpDir = path.join(os.tmpdir(), "karma-parcel-tmp");
+      sinon.stub(os, "tmpdir").returns(tmpDir);
+
+      return promisify(fs.mkdir)(tmpDir)
+        .catch(err => {
+          if (err.code === "EEXIST") {
+            return;
+          }
+          throw err;
+        })
+        .then(() => {
+          const file = new EntryFile();
+          return file
+            .add(`${tmpDir}/path/other/file`)
+            .then(() => promisify(fs.readFile)(file.path))
+            .then(cont => {
+              assert.equal(
+                cont.toString("utf8"),
+                `import "./path/other/file";`
+              );
+            });
+        });
+    });
   });
 });
