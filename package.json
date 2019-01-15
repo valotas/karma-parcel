@@ -1,6 +1,6 @@
 {
   "name": "karma-parcel",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Parcel tests to Karma",
   "main": "dist/index.js",
   "scripts": {
