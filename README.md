@@ -23,7 +23,14 @@ module.exports = function (config) {
 
     // add patterns with all your tests even if they should not
     // be handled by parcel
-    files: [ "tests/**/*.js", "parcel/**/*.js"]
+    files: ["tests/**/*.js",
+    {
+      // parcel tests should not be watched. Parcel will do the
+      // watching instead
+      pattern: "parcel/**/*.js",
+      watched: false,
+      included: false
+    }]
 
     // let karma know which of the test files should be bundled
     // with parcel

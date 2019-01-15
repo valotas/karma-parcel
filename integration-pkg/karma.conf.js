@@ -11,7 +11,18 @@ module.exports = function(config) {
     frameworks: ["mocha", "parcel"],
 
     // list of files / patterns to load in the browser
-    files: ["*-test.js", "*-test.ts"],
+    files: [
+      {
+        pattern: "*-test.js",
+        watched: false,
+        included: false
+      },
+      {
+        pattern: "*-test.ts",
+        watched: false,
+        included: false
+      }
+    ],
 
     // list of files / patterns to exclude
     exclude: [],
