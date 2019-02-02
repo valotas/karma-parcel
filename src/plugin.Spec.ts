@@ -9,6 +9,7 @@ import { createBundleFile, EntryFile, IFile } from "./files";
 import { createParcelPlugin, ParcelPlugin } from "./plugin";
 import { Logger } from "./types";
 import karma = require("karma");
+import * as os from "os";
 
 class EmitterStub {
   refreshFile() {
@@ -58,6 +59,80 @@ describe("plugin", () => {
           .then(() => {
             sinon.assert.calledWith(add, "/original/path");
           });
+      });
+    });
+
+    describe("workspace()", () => {
+      const cwd = os.tmpdir();
+
+      beforeEach(() => {
+        sinon.stub(process, "cwd").returns(cwd);
+      });
+
+      it("returns a workspace", () => {
+        const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
+
+        const workspace = plugin.workspace();
+
+        assert.ok(workspace);
+        assert.equal(workspace.toString(), "Workspace()");
+      });
+
+      it("only creates a workspace once", () => {
+        const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
+
+        const workspace1 = plugin.workspace();
+        const workspace2 = plugin.workspace();
+
+        assert.equal(workspace1, workspace2);
+      });
+    });
+
+    describe("middleware()", () => {
+      const cwd = os.tmpdir();
+      let plugin: ParcelPlugin;
+
+      beforeEach(() => {
+        sinon.stub(process, "cwd").returns(cwd);
+        plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
+      });
+
+      it("creates a bundler", () => {
+        const createBundler = sinon.stub(bundler, "createBundler");
+        createBundler.returns({
+          middleware: sinon.stub()
+        });
+
+        plugin.middleware();
+
+        sinon.assert.calledOnce(createBundler);
+      });
+
+      it("returns the bundler's middleware", () => {
+        const createBundler = sinon.stub(bundler, "createBundler");
+        const middleware = {};
+        createBundler.returns({
+          middleware: sinon.stub().returns(middleware)
+        });
+
+        const actual = plugin.middleware();
+
+        assert.ok(actual);
+        assert.equal(actual, middleware);
+      });
+
+      it("creates only one middleware", () => {
+        const createBundler = sinon.stub(bundler, "createBundler");
+        const middleware = {};
+        createBundler.returns({
+          middleware: sinon.stub().returns(middleware)
+        });
+
+        const actual1 = plugin.middleware();
+        const actual2 = plugin.middleware();
+
+        assert.equal(actual1, actual2);
+        assert.equal(actual1, middleware);
       });
     });
 
