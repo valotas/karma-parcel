@@ -93,10 +93,12 @@ export class EntryFile extends TmpFile {
 
 class Workspace {
   dir: string;
+  bundleFile: string;
   entryFile: EntryFile;
 
   constructor(dir: string) {
     this.dir = dir;
+    this.bundleFile = path.join(dir, "index.js");
     this.entryFile = new EntryFile(dir);
   }
 
@@ -107,6 +109,10 @@ class Workspace {
 
 export function createWorkspaceSync() {
   const dir = path.join(process.cwd(), ".karma-parcel");
-  mkdirp.sync(dir);
-  return new Workspace(dir);
+  const workspace = new Workspace(dir);
+
+  mkdirp.sync(workspace.dir);
+  fs.writeFileSync(workspace.bundleFile, "");
+
+  return workspace;
 }
