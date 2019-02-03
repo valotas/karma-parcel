@@ -1,10 +1,29 @@
 // eslint-env mocha
 import * as assert from "assert";
 import * as sinon from "sinon";
-import * as files from "./files";
 import { createParcelFramework } from "./framework";
 import { ParcelPlugin } from "./plugin";
 import { KarmaLoggerFactory } from "./types";
+
+function fakePlugin({
+  middleware,
+  bundleFile = "/path/to/bundle"
+}: {
+  middleware?: any;
+  bundleFile: string;
+}) {
+  return {
+    workspace() {
+      return { bundleFile };
+    },
+    middleware() {
+      return middleware;
+    },
+    isWatching() {
+      return false;
+    }
+  };
+}
 
 describe("framework", () => {
   let logger: KarmaLoggerFactory;
@@ -24,8 +43,8 @@ describe("framework", () => {
     it("adds the bundle file to the fileList", done => {
       const configFiles: any[] = [];
       const bundleFile = "/path/to/bundle.parcel";
-      sinon.stub(files, "createBundleFile").returns({ path: bundleFile });
-      const plugin = { setBundleFile: sinon.stub() };
+
+      const plugin = fakePlugin({ bundleFile });
 
       createParcelFramework(
         logger,
@@ -38,10 +57,55 @@ describe("framework", () => {
           {
             included: true,
             pattern: bundleFile,
-            served: true,
+            served: false,
             watched: false
           }
         ]);
+        done();
+      });
+    });
+
+    it("adds the parcel middleware if middleware does not exists", done => {
+      const conf = {
+        configFiles: []
+      } as any;
+      const middleware = sinon.stub();
+      const plugin = fakePlugin({ middleware, bundleFile: "/path" });
+
+      createParcelFramework(logger, conf, (plugin as any) as ParcelPlugin);
+
+      setImmediate(() => {
+        assert.deepEqual(conf.middleware, ["parcel"]);
+        done();
+      });
+    });
+
+    it("mutates the existing middleware array", done => {
+      const conf = {
+        middleware: ["middleware1"]
+      };
+      const middleware = sinon.stub();
+      const plugin = fakePlugin({ middleware, bundleFile: "/path" });
+
+      createParcelFramework(logger, conf, (plugin as any) as ParcelPlugin);
+
+      setImmediate(() => {
+        assert.deepEqual(conf.middleware, ["middleware1", "parcel"]);
+        done();
+      });
+    });
+
+    it("makes sure that the middleware conf is an array", done => {
+      const conf = {
+        middleware: "middleware1"
+      };
+      const middleware = sinon.stub();
+      const plugin = fakePlugin({ middleware, bundleFile: "/path" });
+
+      createParcelFramework(logger, conf, (plugin as any) as ParcelPlugin);
+
+      setImmediate(() => {
+        assert.deepEqual(conf.middleware, ["middleware1", "parcel"]);
         done();
       });
     });

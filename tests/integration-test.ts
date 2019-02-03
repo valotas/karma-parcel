@@ -2,6 +2,7 @@
 import * as karma from "karma";
 import * as assert from "assert";
 import * as path from "path";
+import rimraf = require("rimraf");
 
 function readConfig(options: karma.ConfigOptions = {}) {
   const karmaFile = path.join(__dirname, "fixtures", "karma.conf.js");
@@ -11,21 +12,25 @@ function readConfig(options: karma.ConfigOptions = {}) {
 function run(options: karma.ConfigOptions = {}): Promise<karma.TestResults> {
   const conf = readConfig(options);
   return new Promise((resolve, reject) => {
-    let testResults: karma.TestResults;
-
-    const karmaServer = new karma.Server(conf, () => {
-      resolve(testResults);
-    });
-
-    karmaServer.once("run_complete", (_browsers, results, err) => {
+    rimraf(path.join(process.cwd(), ".karma-parcel"), err => {
       if (err) {
-        reject(new Error(`Karma did not complete`));
-      } else {
-        testResults = results;
+        return reject(err);
       }
-    });
 
-    karmaServer.start();
+      let testResults: karma.TestResults;
+
+      const karmaServer = new karma.Server(conf, () => resolve(testResults));
+
+      karmaServer.once("run_complete", (_browsers, results, err) => {
+        if (err) {
+          reject(new Error(`Karma did not complete`));
+        } else {
+          testResults = results;
+        }
+      });
+
+      karmaServer.start();
+    });
   });
 }
 

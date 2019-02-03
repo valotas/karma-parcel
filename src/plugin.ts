@@ -1,65 +1,118 @@
+import {
+  NextFunction,
+  Request,
+  RequestHandler,
+  Response
+} from "express-serve-static-core";
 import * as os from "os";
 import * as path from "path";
-import { bundle } from "./bunlder";
-import { EntryFile, IFile } from "./files";
-import { KarmaFile, KarmaLoggerFactory, Logger, KarmaEmitter } from "./types";
+import { createBundler } from "./bunlder";
+import { createWorkspaceSync } from "./files";
+import {
+  Callback,
+  KarmaEmitter,
+  KarmaFile,
+  KarmaLoggerFactory,
+  Logger
+} from "./types";
 import { throttle } from "./utils";
-import Bundler = require("parcel-bundler");
 import karma = require("karma");
+
+export type Workspace = ReturnType<typeof createWorkspaceSync>;
 
 export class ParcelPlugin {
   private log: Logger;
-  private entry: EntryFile;
-  private bundleFile: IFile | null;
   private karmaConf: karma.ConfigOptions;
-  private bundlePromise: Promise<Bundler.ParcelBundle> | null;
   private emitter: KarmaEmitter;
+  private _workspace: Workspace | null;
+  private _middleware: RequestHandler | null;
 
   constructor(logger: Logger, conf: karma.ConfigOptions, emitter: any) {
     this.log = logger;
-    this.entry = new EntryFile();
-    this.bundleFile = null;
     this.karmaConf = conf;
-    this.bundlePromise = null;
     this.emitter = emitter;
+    this._workspace = null;
+    this._middleware = null;
+  }
+
+  workspace(): Workspace {
+    if (!this._workspace) {
+      this._workspace = createWorkspaceSync();
+      this.log.debug(`Created workspace: ${this._workspace.dir}`);
+    }
+    return this._workspace;
   }
 
   addFile(file: KarmaFile | string) {
     const path = (file as any).originalPath || file;
-    return this.entry.add(path);
+    return this.workspace().entryFile.add(path);
   }
 
-  setBundleFile(file: IFile) {
-    this.bundleFile = file;
+  isWatching() {
+    return this.karmaConf.autoWatch || false;
   }
 
-  bundle(): Promise<IFile> {
-    this.bundlePromise = this.bundlePromise || this.createBundlerAndBundle({});
-    return this.bundlePromise.then(() => this.bundleFile as IFile);
-  }
-
-  private createBundlerAndBundle(options: Bundler.ParcelOptions) {
-    if (!this.bundleFile) {
-      throw new Error(
-        "No target bundle file. Make sure you call 'setBundleFile' before 'bundle'"
+  preprocessor() {
+    return (content: string, file: KarmaFile, next: Callback) => {
+      this.log.debug(
+        `Adding ${file.originalPath} to ${this.workspace().entryFile.path}`
       );
-    }
-    return bundle(
-      this.entry.path,
-      {
-        outDir: this.bundleFile.dir,
-        outFile: this.bundleFile.name,
-        cacheDir: path.join(os.tmpdir(), "karma-parcel-cache"),
-        watch: this.karmaConf.autoWatch || false,
-        detailedReport: false,
-        logLevel: 1
-      },
-      throttle(() => {
-        const bundleFilePath = this.bundleFile ? this.bundleFile.path : "";
-        this.log.debug(`Wrote bundled test: ${bundleFilePath}`);
-        if (this.bundleFile) {
-          this.emitter.refreshFile(this.bundleFile.path);
+
+      this.addFile(file).then(() => {
+        if (this.karmaConf.logLevel === (this.karmaConf as any).LOG_DEBUG) {
+          next(null, `console.log("${file.path}");`);
+        } else {
+          next(null, `/* ${file.path} */`);
         }
+      });
+    };
+  }
+
+  middleware: RequestHandler = (req, resp, next) => {
+    const originalUrl = req.url;
+    const index = originalUrl.indexOf(".karma-parcel/index.js");
+
+    if (index > 0) {
+      const newUrl = `/${originalUrl.substring(index + 1)}`;
+      req.url = newUrl;
+
+      this.log.debug(`Serving ${originalUrl} as ${newUrl}`);
+
+      return this.bundleMiddleware(req, resp, next);
+    }
+
+    this.log.debug(`${req.url} can not be served by parcel:middleware`);
+    next();
+  };
+
+  private bundleMiddleware(req: Request, resp: Response, next: NextFunction) {
+    if (!this._middleware) {
+      const bundler = this.createBundler();
+      this._middleware = bundler.middleware();
+    }
+    return this._middleware(req, resp, next);
+  }
+
+  private createBundler() {
+    const { entryFile, dir, bundleFile } = this.workspace();
+
+    this.log.debug(`Creating bundler for ${entryFile.toString()}`);
+
+    return createBundler(
+      entryFile.path,
+      {
+        outDir: dir,
+        outFile: bundleFile,
+        publicUrl: "/karma-parcel",
+        cacheDir: path.join(os.tmpdir(), "karma-parcel-cache"),
+        watch: this.isWatching(),
+        detailedReport: false,
+        logLevel: 1,
+        hmr: false
+      } as any,
+      throttle(() => {
+        this.log.debug(`Wrote bundled test: ${bundleFile}`);
+        this.emitter.refreshFile(bundleFile);
       }, 500)
     );
   }
@@ -70,7 +123,8 @@ export function createParcelPlugin(
   config: karma.ConfigOptions,
   emitter: KarmaEmitter
 ) {
-  return new ParcelPlugin(logger.create("parcel"), config, emitter);
+  const parcelLoger = logger.create("parcel");
+  return new ParcelPlugin(parcelLoger, config, emitter);
 }
 
 createParcelPlugin.$inject = ["logger", "config", "emitter"];

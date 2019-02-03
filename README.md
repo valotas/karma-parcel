@@ -46,12 +46,16 @@ module.exports = function (config) {
 Parcel will create one bundle will all the files that are preprocessed with
 the `parcel` preprocessor. The preprocessor will emit an empty file instead of
 the actual content. The plugin will register the bundle file to karma's
-fileList and therefor it's content will properly be evaluated.
+fileList with `serve: false` in order not to be handled by karma's middleware.
+To serve the bundled file, parcel's own middleware is registered and used
 
 # Related
 
-This plugin is heavily inspired by [`karma-browserify`][karma-browserify]
+This plugin is heavily inspired by [`karma-browserify`][karma-browserify] and
+[`karma-webpack`][karma-webpack].
 
 [parcel]: https://parceljs.org/
 [karma]: https://karma-runner.github.io
 [karma-browserify]: https://github.com/nikku/karma-browserify
+[karma-webpack]: https://github.com/webpack-contrib/karma-webpack
+

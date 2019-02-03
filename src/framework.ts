@@ -1,6 +1,5 @@
-import { KarmaLoggerFactory } from "./types";
 import { ParcelPlugin } from "./plugin";
-import { createBundleFile } from "./files";
+import { KarmaLoggerFactory } from "./types";
 
 export function createParcelFramework(
   logger: KarmaLoggerFactory,
@@ -9,23 +8,25 @@ export function createParcelFramework(
 ) {
   const log = logger.create("framework:parcel");
 
-  log.debug("Adding preprocessor for **/*.parcel");
-  conf.preprocessors = Object.assign(conf.preprocessors || {}, {
-    "**/*.parcel": ["parcel-bundle"]
-  });
+  const { bundleFile } = parcelPlugin.workspace();
 
-  const bundleFile = createBundleFile();
-
-  log.debug(`Adding ${bundleFile.path} to the fileList`);
+  log.debug(`Adding ${bundleFile} to the fileList`);
   conf.files = conf.files || [];
   conf.files.push({
-    pattern: bundleFile.path,
-    served: true,
+    pattern: bundleFile,
+    // karma should not serve the file. Parcel's middleware will
+    // do the bundling/serving of the file
+    served: false,
     included: true,
-    watched: false
+    watched: parcelPlugin.isWatching()
   });
 
-  parcelPlugin.setBundleFile(bundleFile);
+  log.debug(`Adding middleware:parcel`);
+  conf.middleware = conf.middleware || [];
+  if (typeof conf.middleware === "string") {
+    conf.middleware = [conf.middleware];
+  }
+  conf.middleware.push("parcel");
 }
 
 createParcelFramework.$inject = ["logger", "config", "parcelPlugin"];

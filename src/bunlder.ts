@@ -1,11 +1,17 @@
 import Bundler = require("parcel-bundler");
+import { EventEmitter } from "events";
+import { RequestHandler } from "express-serve-static-core";
 
-export function bundle(
+export interface ParcelBundler extends Bundler, EventEmitter {
+  middleware: () => RequestHandler;
+}
+
+export function createBundler(
   entry: string,
-  options: Bundler.ParcelOptions,
+  options: Bundler.ParcelOptions & { hmr: boolean },
   onBuild = () => {}
 ) {
-  const bundler = new Bundler([entry], options);
-  (bundler as any).on("buildEnd", onBuild);
-  return bundler.bundle();
+  const bundler = new Bundler([entry], options) as ParcelBundler;
+  bundler.on("buildEnd", onBuild);
+  return bundler;
 }
