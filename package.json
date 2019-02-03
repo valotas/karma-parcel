@@ -4,7 +4,7 @@
   "description": "Parcel tests to Karma",
   "main": "dist/index.js",
   "scripts": {
-    "clean": "rm -rf .cache dist",
+    "clean": "rm -rf .cache dist .karma-parcel",
     "build": "tsc -p .",
     "prepare": "npm run clean && npm run build",
     "mocha": "mocha -r ts-node/register src/**/*.Spec.ts",
