@@ -3,6 +3,7 @@ import * as os from "os";
 import * as path from "path";
 import { promisify } from "util";
 import * as mkdirp from "mkdirp";
+import rimraf = require("rimraf");
 
 export interface IFile {
   dir: string;
@@ -109,6 +110,8 @@ class Workspace {
 
 export function createWorkspaceSync() {
   const dir = path.join(process.cwd(), ".karma-parcel");
+  rimraf.sync(dir);
+
   const workspace = new Workspace(dir);
 
   mkdirp.sync(workspace.dir);

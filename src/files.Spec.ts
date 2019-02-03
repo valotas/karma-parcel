@@ -7,6 +7,7 @@ import * as rimraf from "rimraf";
 import * as sinon from "sinon";
 import { promisify } from "util";
 import { createWorkspaceSync, EntryFile } from "./files";
+import mkdirp = require("mkdirp");
 
 describe("files", () => {
   afterEach(() => sinon.restore());
@@ -36,6 +37,20 @@ describe("files", () => {
       createWorkspaceSync();
 
       return promisify(fs.stat)(path.join(cwd, ".karma-parcel"));
+    });
+
+    it("removes previously created directory", () => {
+      const dir = path.join(cwd, ".karma-parcel");
+      const fileInDir = path.join(dir, "xxx");
+      mkdirp.sync(dir);
+
+      return promisify(fs.writeFile)(fileInDir, "xxx")
+        .then(() => createWorkspaceSync())
+        .then(() => promisify(fs.stat)(fileInDir))
+        .then(
+          stat => assert.fail(`Expected ${fileInDir} not to exists`),
+          e => assert.ok(e)
+        );
     });
 
     it("creates an empty index.js in .karma-parcel", () => {
