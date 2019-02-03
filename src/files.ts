@@ -87,7 +87,7 @@ export class EntryFile extends TmpFile {
   }
 
   toString() {
-    return `EntryFile(${this.path})`;
+    return `EntryFile(${this.path}, imports: ${this.files.length})`;
   }
 }
 

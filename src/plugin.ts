@@ -81,6 +81,7 @@ export class ParcelPlugin {
       return this.bundleMiddleware(req, resp, next);
     }
 
+    this.log.debug(`${req.url} can not be served by parcel:middleware`);
     next();
   };
 
@@ -94,6 +95,9 @@ export class ParcelPlugin {
 
   private createBundler() {
     const { entryFile, dir, bundleFile } = this.workspace();
+
+    this.log.debug(`Creating bundler for ${entryFile.toString()}`);
+
     return createBundler(
       entryFile.path,
       {
