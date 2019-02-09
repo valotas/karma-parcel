@@ -84,16 +84,6 @@ describe("files", () => {
       });
     }
 
-    it("can be touched", done => {
-      workspace()
-        .then(w => w.entryFile)
-        .then(file =>
-          file.touch().then(() => {
-            fs.stat(file.path, done);
-          })
-        );
-    });
-
     it("allows addition of files", () => {
       return workspace().then(w => {
         const file = w.entryFile;

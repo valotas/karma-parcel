@@ -9,10 +9,7 @@ export interface IFile {
   dir: string;
   name: string;
   path: string;
-  exists: () => Promise<any>;
-  touch: () => Promise<any>;
   write: (str: string) => Promise<any>;
-  read: () => Promise<Buffer>;
 }
 
 class TmpFile implements IFile {
@@ -28,26 +25,11 @@ class TmpFile implements IFile {
     this.path = path.join(this.dir, this.name);
   }
 
-  exists() {
-    return promisify(fs.exists)(this.path);
-  }
-
-  async touch() {
-    const exists = await this.exists();
-    if (!exists) {
-      return this.write("");
-    }
-  }
-
   write(content: string) {
     this.done = this.done.then(() =>
       promisify(fs.writeFile)(this.path, content)
     );
     return this.done;
-  }
-
-  read() {
-    return promisify(fs.readFile)(this.path);
   }
 }
 
