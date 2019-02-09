@@ -2,7 +2,7 @@ import { createParcelFramework } from "./framework";
 import { createParcelPlugin, ParcelPlugin } from "./plugin";
 
 function createParcelPreprocessor(parcePlugin: ParcelPlugin) {
-  return parcePlugin.preprocessor();
+  return parcePlugin.preprocessor;
 }
 
 createParcelPreprocessor.$inject = ["parcelPlugin"];

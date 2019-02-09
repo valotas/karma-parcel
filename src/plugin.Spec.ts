@@ -7,7 +7,7 @@ import * as sinon from "sinon";
 import * as bundler from "./bunlder";
 import { EntryFile } from "./files";
 import { createParcelPlugin, ParcelPlugin } from "./plugin";
-import { Logger } from "./types";
+import { Logger, KarmaFile } from "./types";
 import karma = require("karma");
 
 class EmitterStub {
@@ -85,6 +85,24 @@ describe("plugin", () => {
           .then(() => {
             sinon.assert.calledWith(add, "/original/path");
           });
+      });
+    });
+
+    describe("preprocessor", () => {
+      it("adds the specified file", () => {
+        const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
+        const addFile = sinon.stub(plugin, "addFile").resolves({});
+        const file: KarmaFile = {
+          originalPath: "/originalPath",
+          relativePath: "/relativePath",
+          path: "/path",
+          sourceMap: "/sourceMaps"
+        };
+
+        plugin.preprocessor("", file, sinon.stub());
+
+        sinon.assert.calledOnce(addFile);
+        sinon.assert.calledWith(addFile, file);
       });
     });
 

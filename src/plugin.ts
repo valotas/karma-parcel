@@ -52,21 +52,19 @@ export class ParcelPlugin {
     return this.karmaConf.autoWatch || false;
   }
 
-  preprocessor() {
-    return (content: string, file: KarmaFile, next: Callback) => {
-      this.log.debug(
-        `Adding ${file.originalPath} to ${this.workspace().entryFile.path}`
-      );
+  preprocessor = (content: string, file: KarmaFile, next: Callback) => {
+    this.log.debug(
+      `Adding ${file.originalPath} to ${this.workspace().entryFile.path}`
+    );
 
-      this.addFile(file).then(() => {
-        if (this.karmaConf.logLevel === (this.karmaConf as any).LOG_DEBUG) {
-          next(null, `console.log("${file.path}");`);
-        } else {
-          next(null, `/* ${file.path} */`);
-        }
-      });
-    };
-  }
+    this.addFile(file).then(() => {
+      if (this.karmaConf.logLevel === (this.karmaConf as any).LOG_DEBUG) {
+        next(null, `console.log("${file.path}");`);
+      } else {
+        next(null, `/* ${file.path} */`);
+      }
+    });
+  };
 
   middleware: RequestHandler = (req, resp, next) => {
     const originalUrl = req.url;
