@@ -71,7 +71,7 @@ describe("plugin", () => {
       it("writes the file to the underlying entry file", () => {
         const cwd = path.join(os.tmpdir(), `karma-parcel-test-${Date.now()}`);
         sinon.stub(process, "cwd").returns(cwd);
-        const add = sinon.stub(EntryFile.prototype, "add").resolves(null);
+        const add = sinon.stub(EntryFile.prototype, "add").resolves();
 
         const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
 
@@ -91,7 +91,7 @@ describe("plugin", () => {
     describe("preprocessor", () => {
       it("adds the specified file", () => {
         const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
-        const addFile = sinon.stub(plugin, "addFile").resolves({});
+        const addFile = sinon.stub(plugin, "addFile").resolves();
         const file: KarmaFile = {
           originalPath: "/originalPath",
           relativePath: "/relativePath",
@@ -112,7 +112,7 @@ describe("plugin", () => {
       let req: Request;
       let resp: Response;
       let middleware: sinon.SinonStub;
-      let createBundler: sinon.SinonStub;
+      let createBundler: sinon.SinonStub<any, bundler.ParcelBundler>;
       let bundlerInstance: any;
 
       beforeEach(() => {
