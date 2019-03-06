@@ -8,26 +8,26 @@ import * as os from "os";
 import * as path from "path";
 import { createBundler } from "./bunlder";
 import { createWorkspaceSync } from "./files";
-import {
-  Callback,
-  KarmaEmitter,
-  KarmaFile,
-  KarmaLoggerFactory,
-  Logger
-} from "./types";
+import { Callback, KarmaFile, KarmaLoggerFactory, Logger } from "./types";
 import { throttle } from "./utils";
 import karma = require("karma");
 
 export type Workspace = ReturnType<typeof createWorkspaceSync>;
 
+export type KarmaConf = karma.ConfigOptions & karma.Config;
+
+export interface KarmaServer extends karma.Server {
+  refreshFile(file: string): void;
+}
+
 export class ParcelPlugin {
   private log: Logger;
-  private karmaConf: karma.ConfigOptions;
-  private emitter: KarmaEmitter;
+  private karmaConf: KarmaConf;
+  private emitter: KarmaServer;
   private _workspace: Workspace | null;
   private _middleware: RequestHandler | null;
 
-  constructor(logger: Logger, conf: karma.ConfigOptions, emitter: any) {
+  constructor(logger: Logger, conf: KarmaConf, emitter: KarmaServer) {
     this.log = logger;
     this.karmaConf = conf;
     this.emitter = emitter;
@@ -58,7 +58,7 @@ export class ParcelPlugin {
     );
 
     this.addFile(file).then(() => {
-      if (this.karmaConf.logLevel === (this.karmaConf as any).LOG_DEBUG) {
+      if (this.karmaConf.logLevel === this.karmaConf.LOG_DEBUG) {
         next(null, `console.log("${file.path}");`);
       } else {
         next(null, `/* ${file.path} */`);
@@ -118,8 +118,8 @@ export class ParcelPlugin {
 
 export function createParcelPlugin(
   logger: KarmaLoggerFactory,
-  config: karma.ConfigOptions,
-  emitter: KarmaEmitter
+  config: KarmaConf,
+  emitter: KarmaServer
 ) {
   const parcelLoger = logger.create("parcel");
   return new ParcelPlugin(parcelLoger, config, emitter);
