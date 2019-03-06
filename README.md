@@ -8,7 +8,7 @@ Use [parcel][] to preprocess [karma][] tests
 
 To get all the needed packages;
 
-```
+```bash
 npm i karma parcel karma-parcel -D
 ```
 
@@ -23,14 +23,16 @@ module.exports = function (config) {
 
     // add patterns with all your tests even if they should not
     // be handled by parcel
-    files: ["tests/**/*.js",
-    {
-      // parcel tests should not be watched. Parcel will do the
-      // watching instead
-      pattern: "parcel/**/*.js",
-      watched: false,
-      included: false
-    }]
+    files: [
+      "tests/**/*.js",
+      {
+        // parcel tests should not be watched. Parcel will do the
+        // watching instead
+        pattern: "parcel/**/*.js",
+        watched: false,
+        included: false
+      }
+    ],
 
     // let karma know which of the test files should be bundled
     // with parcel
@@ -58,4 +60,3 @@ This plugin is heavily inspired by [`karma-browserify`][karma-browserify] and
 [karma]: https://karma-runner.github.io
 [karma-browserify]: https://github.com/nikku/karma-browserify
 [karma-webpack]: https://github.com/webpack-contrib/karma-webpack
-
