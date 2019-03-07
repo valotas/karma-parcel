@@ -6,8 +6,13 @@ import * as path from "path";
 import * as sinon from "sinon";
 import * as bundler from "./bunlder";
 import { EntryFile } from "./files";
-import { createParcelPlugin, ParcelPlugin } from "./plugin";
-import { Logger, KarmaFile } from "./types";
+import {
+  createParcelPlugin,
+  KarmaConf,
+  ParcelPlugin,
+  KarmaServer
+} from "./plugin";
+import { KarmaFile, Logger } from "./types";
 import karma = require("karma");
 
 class EmitterStub {
@@ -16,9 +21,13 @@ class EmitterStub {
   }
 }
 
+function emitterStub() {
+  return (new EmitterStub() as any) as KarmaServer;
+}
+
 describe("plugin", () => {
   let logger: Logger;
-  let karmaConf: karma.ConfigOptions;
+  let karmaConf: KarmaConf;
 
   beforeEach(() => {
     logger = {
@@ -27,7 +36,7 @@ describe("plugin", () => {
     };
     karmaConf = {
       autoWatch: false
-    };
+    } as KarmaConf;
   });
 
   afterEach(() => sinon.restore());
@@ -49,7 +58,7 @@ describe("plugin", () => {
       });
 
       it("returns a workspace", () => {
-        const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
+        const plugin = new ParcelPlugin(logger, karmaConf, emitterStub());
 
         const workspace = plugin.workspace();
 
@@ -58,7 +67,7 @@ describe("plugin", () => {
       });
 
       it("only creates a workspace once", () => {
-        const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
+        const plugin = new ParcelPlugin(logger, karmaConf, emitterStub());
 
         const workspace1 = plugin.workspace();
         const workspace2 = plugin.workspace();
@@ -73,7 +82,7 @@ describe("plugin", () => {
         sinon.stub(process, "cwd").returns(cwd);
         const add = sinon.stub(EntryFile.prototype, "add").resolves();
 
-        const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
+        const plugin = new ParcelPlugin(logger, karmaConf, emitterStub());
 
         return plugin
           .addFile({
@@ -90,7 +99,7 @@ describe("plugin", () => {
 
     describe("preprocessor", () => {
       it("adds the specified file", () => {
-        const plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
+        const plugin = new ParcelPlugin(logger, karmaConf, emitterStub());
         const addFile = sinon.stub(plugin, "addFile").resolves();
         const file: KarmaFile = {
           originalPath: "/originalPath",
@@ -121,7 +130,7 @@ describe("plugin", () => {
         middleware = sinon.stub();
         bundlerInstance = { middleware: () => middleware };
         sinon.stub(process, "cwd").returns(cwd);
-        plugin = new ParcelPlugin(logger, karmaConf, new EmitterStub());
+        plugin = new ParcelPlugin(logger, karmaConf, emitterStub());
         createBundler = sinon.stub(bundler, "createBundler");
         createBundler.returns(bundlerInstance);
       });
