@@ -5,6 +5,7 @@ import {
   Response
 } from "express-serve-static-core";
 import * as os from "os";
+import { ParcelOptions } from "parcel-bundler";
 import * as path from "path";
 import { createBundler } from "./bunlder";
 import { createWorkspaceSync } from "./files";
@@ -14,7 +15,13 @@ import karma = require("karma");
 
 export type Workspace = ReturnType<typeof createWorkspaceSync>;
 
-export type KarmaConf = karma.ConfigOptions & karma.Config;
+export type KarmaConf = karma.ConfigOptions &
+  karma.Config & {
+    parcelConfig?: Pick<
+      ParcelOptions,
+      "cacheDir" | "detailedReport" | "logLevel"
+    >;
+  };
 
 export interface KarmaServer extends karma.Server {
   refreshFile(file: string): void;
@@ -99,15 +106,17 @@ export class ParcelPlugin {
     return createBundler(
       entryFile.path,
       {
-        outDir: dir,
-        outFile: bundleFile,
-        publicUrl: "/karma-parcel",
         cacheDir: path.join(os.tmpdir(), "karma-parcel-cache"),
-        watch: this.isWatching(),
         detailedReport: false,
         logLevel: 1,
+        outDir: dir,
+        ...this.karmaConf.parcelConfig,
+        // config that should not be overriden
+        outFile: bundleFile,
+        publicUrl: "/karma-parcel",
+        watch: this.isWatching(),
         hmr: false
-      } as any,
+      },
       throttle(() => {
         this.log.debug(`Wrote bundled test: ${bundleFile}`);
         this.emitter.refreshFile(bundleFile);
