@@ -9,7 +9,7 @@ Use [parcel][] to preprocess [karma][] tests
 To get all the needed packages;
 
 ```bash
-npm i karma parcel karma-parcel -D
+npm i karma parcel-bundler karma-parcel -D
 ```
 
 ## Configure:
