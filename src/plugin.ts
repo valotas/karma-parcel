@@ -112,7 +112,8 @@ export class ParcelPlugin {
         outFile: bundleFile,
         publicUrl: "/karma-parcel",
         watch: this.isWatching(),
-        hmr: false
+        hmr: false,
+        autoinstall: false
       },
       throttle(() => {
         this.log.debug(`Wrote bundled test: ${bundleFile}`);

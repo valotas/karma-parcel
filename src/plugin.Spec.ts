@@ -233,6 +233,14 @@ describe("plugin", () => {
           );
         });
 
+        it("creates the bundler with autoinstall == false", () => {
+          plugin.middleware(req, resp, sinon.stub());
+
+          sinon.assert.calledWithMatch(createBundler, sinon.match.any, {
+            autoinstall: false
+          });
+        });
+
         it("delegate request to the bundler's middleware", () => {
           const next = sinon.stub();
           plugin.middleware(req, resp, next);
