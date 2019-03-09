@@ -4,9 +4,7 @@ import {
   RequestHandler,
   Response
 } from "express-serve-static-core";
-import * as os from "os";
 import { ParcelOptions } from "parcel-bundler";
-import * as path from "path";
 import { createBundler } from "./bunlder";
 import { createWorkspaceSync } from "./files";
 import { Callback, KarmaFile, KarmaLoggerFactory, Logger } from "./types";
@@ -106,7 +104,6 @@ export class ParcelPlugin {
     return createBundler(
       entryFile.path,
       {
-        cacheDir: path.join(os.tmpdir(), "karma-parcel-cache"),
         detailedReport: false,
         logLevel: 1,
         outDir: dir,
