@@ -8,7 +8,7 @@ export interface ParcelBundler extends Bundler, EventEmitter {
 
 export function createBundler(
   entry: string,
-  options: Bundler.ParcelOptions & { hmr: boolean },
+  options: Bundler.ParcelOptions & { hmr: boolean; autoinstall: boolean },
   onBuild = () => {}
 ) {
   const bundler = new Bundler([entry], options) as ParcelBundler;
