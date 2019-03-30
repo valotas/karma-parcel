@@ -6,7 +6,7 @@ Use [parcel][] to preprocess [karma][] tests
 
 ## Install
 
-To get all the needed packages;
+To get all the needed packages:
 
 ```bash
 npm i karma parcel-bundler karma-parcel -D
@@ -43,11 +43,29 @@ module.exports = function (config) {
 };
 ```
 
+### `parcelConfig`
+
+some more parcel specific configuration can be passed to the underlying parcel
+instance via the `parcelConfig` attribute of your karma configuration:
+
+```js
+module.exports = function (config) {
+  config.set({
+    // lot of karma configuration
+    parcelConfig: {
+      cacheDir: "/path/to/cache", // default: "./.cache"
+      detailedReport: true, // default: false,
+      logLevel: 2 // default: 1
+    }
+  });
+};
+```
+
 ## Under the hood
 
-Parcel will create one bundle will all the files that are preprocessed with
+Parcel will create one bundle with all the files that are preprocessed with
 the `parcel` preprocessor. The preprocessor will emit an empty file instead of
-the actual content. The plugin will register the bundle file to karma's
+the actual content. The plugin will register a bundle file to karma's
 fileList with `serve: false` in order not to be handled by karma's middleware.
 To serve the bundled file, parcel's own middleware is registered and used
 
