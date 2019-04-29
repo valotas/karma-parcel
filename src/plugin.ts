@@ -73,7 +73,7 @@ export class ParcelPlugin {
 
   middleware: RequestHandler = (req, resp, next) => {
     const originalUrl = req.url;
-    const index = originalUrl.indexOf(".karma-parcel/index.js");
+    const index = originalUrl.indexOf(".karma-parcel/");
 
     if (index > 0) {
       const newUrl = `/${originalUrl.substring(index + 1)}`;
