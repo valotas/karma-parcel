@@ -166,6 +166,14 @@ describe("plugin", () => {
           sinon.assert.calledOnce(createBundler);
         });
 
+        it("creates a bundler for any resource containing .karma-parcel", () => {
+          req.url = "/some/path/to/.karma-parcel/some/other/resource";
+
+          plugin.middleware(req, resp, sinon.stub());
+
+          sinon.assert.calledOnce(createBundler);
+        });
+
         it("creates a bundler with the entry.js as the entry point", () => {
           plugin.middleware(req, resp, sinon.stub());
 
@@ -247,6 +255,16 @@ describe("plugin", () => {
 
           sinon.assert.calledOnce(middleware);
           sinon.assert.calledWith(middleware, req, resp, next);
+        });
+
+        it("delegate request to the bundler's middleware with the right req.url", () => {
+          req.url = "/some/path/to/.karma-parcel/some/other/resource";
+
+          const next = sinon.stub();
+          plugin.middleware(req, resp, next);
+
+          sinon.assert.calledOnce(middleware);
+          sinon.assert.calledWith(middleware, sinon.match.hasNested("url", "/karma-parcel/some/other/resource"), resp, next);
         });
 
         it("creates the middleware only once", () => {
