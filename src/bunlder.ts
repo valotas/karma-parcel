@@ -2,7 +2,7 @@ import Bundler = require("parcel-bundler");
 import { EventEmitter } from "events";
 import { RequestHandler } from "express-serve-static-core";
 
-export interface ParcelBundler extends Bundler, EventEmitter {
+export interface ParcelBundler extends Bundler {
   middleware: () => RequestHandler;
 }
 
