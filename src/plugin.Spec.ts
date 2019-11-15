@@ -229,7 +229,8 @@ describe("plugin", () => {
           karmaConf.parcelConfig = {
             cacheDir: "/path/to/cache",
             detailedReport: true,
-            logLevel: 2
+            logLevel: 2,
+            watch: true
           };
 
           plugin.middleware(req, resp, sinon.stub());

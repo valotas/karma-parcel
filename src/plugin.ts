@@ -17,7 +17,7 @@ export type KarmaConf = karma.ConfigOptions &
   karma.Config & {
     parcelConfig?: Pick<
       ParcelOptions,
-      "cacheDir" | "detailedReport" | "logLevel"
+      "cacheDir" | "detailedReport" | "logLevel" | "watch"
     >;
   };
 
