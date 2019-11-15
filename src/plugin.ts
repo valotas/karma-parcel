@@ -107,11 +107,11 @@ export class ParcelPlugin {
         detailedReport: false,
         logLevel: 1,
         outDir: dir,
+        watch: this.isWatching(),
         ...this.karmaConf.parcelConfig,
         // config that should not be overriden
         outFile: bundleFile,
         publicUrl: "/karma-parcel",
-        watch: this.isWatching(),
         hmr: false,
         autoinstall: false
       },
