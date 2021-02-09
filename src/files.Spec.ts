@@ -87,11 +87,12 @@ describe("files", () => {
     it("allows addition of files", () => {
       return workspace().then(w => {
         const file = w.entryFile;
+        const tmpDir = path.dirname(path.dirname(file.path))
         return file
-          .add("/path/to/file")
+          .add(tmpDir + "/path/to/file")
           .then(() => promisify(fs.readFile)(file.path))
           .then(cont => {
-            assert.equal(cont.toString("utf8"), `import "../../path/to/file";`);
+            assert.equal(cont.toString("utf8"), `import "../path/to/file";`);
           });
       });
     });
@@ -110,12 +111,12 @@ describe("files", () => {
           const file = createWorkspaceSync().entryFile;
 
           return file
-            .add("/path/other/file")
+            .add(tmpDir + "/path/other/file")
             .then(() => promisify(fs.readFile)(file.path))
             .then(cont => {
               assert.equal(
                 cont.toString("utf8"),
-                `import "../../../path/other/file";`
+                `import "../path/other/file";`
               );
             });
         });
