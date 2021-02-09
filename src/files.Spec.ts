@@ -97,6 +97,21 @@ describe("files", () => {
       });
     });
 
+    it("filters out double entries", () => {
+      return workspace().then(w => {
+        const file = w.entryFile
+        const tmpDir = path.dirname(path.dirname(file.path))
+        return Promise.all([
+          file.add(tmpDir + "/path/to/file"),
+          file.add(tmpDir + "/path/to/file"),
+        ])
+          .then(() => promisify(fs.readFile)(file.path))
+          .then(cont => {
+            assert.equal(cont.toString("utf8"), `import "../path/to/file";`);
+          });
+      });
+    });
+
     it("adds the files relative to the dir", () => {
       const tmpDir = path.join(os.tmpdir(), "karma-parcel-tmp");
 

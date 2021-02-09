@@ -54,6 +54,7 @@ export class EntryFile extends TmpFile {
   }
 
   add(path: string) {
+    if (this.files.indexOf(path) >= 0) return Promise.resolve();
     this.files.push(path);
     const content = this.files
       .map(f => `import "${this.importPath(f)}";`)
