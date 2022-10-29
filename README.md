@@ -1,7 +1,5 @@
 # Karma Parcel
 
-[![Build Status](https://travis-ci.org/valotas/karma-parcel.svg?branch=master)](https://travis-ci.org/valotas/karma-parcel)
-
 Use [parcel][] to preprocess [karma][] tests
 
 ## Install
