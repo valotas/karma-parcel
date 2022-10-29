@@ -94,8 +94,13 @@ class Workspace {
   }
 }
 
-export function createWorkspaceSync() {
-  const dir = path.join(process.cwd(), ".karma-parcel");
+export type WorkspaceConfig = {
+  workspaceDir?: string;
+};
+
+export function createWorkspaceSync(conf: WorkspaceConfig = {}) {
+  const dir = conf.workspaceDir || path.join(process.cwd(), ".karma-parcel");
+
   rimraf.sync(dir);
 
   const workspace = new Workspace(dir);

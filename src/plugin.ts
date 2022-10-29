@@ -2,11 +2,11 @@ import {
   NextFunction,
   Request,
   RequestHandler,
-  Response
+  Response,
 } from "express-serve-static-core";
 import { ParcelOptions } from "parcel-bundler";
 import { createBundler } from "./bunlder";
-import { createWorkspaceSync } from "./files";
+import { createWorkspaceSync, WorkspaceConfig } from "./files";
 import { Callback, KarmaFile, KarmaLoggerFactory, Logger } from "./types";
 import { throttle } from "./utils";
 import karma = require("karma");
@@ -18,7 +18,8 @@ export type KarmaConf = karma.ConfigOptions &
     parcelConfig?: Pick<
       ParcelOptions,
       "cacheDir" | "detailedReport" | "logLevel"
-    >;
+    > &
+      WorkspaceConfig;
   };
 
 export interface KarmaServer extends karma.Server {
@@ -42,7 +43,7 @@ export class ParcelPlugin {
 
   workspace(): Workspace {
     if (!this._workspace) {
-      this._workspace = createWorkspaceSync();
+      this._workspace = createWorkspaceSync(this.karmaConf?.parcelConfig);
       this.log.debug(`Created workspace: ${this._workspace.dir}`);
     }
     return this._workspace;
@@ -113,7 +114,7 @@ export class ParcelPlugin {
         publicUrl: "/karma-parcel",
         watch: this.isWatching(),
         hmr: false,
-        autoinstall: false
+        autoinstall: false,
       },
       throttle(() => {
         this.log.debug(`Wrote bundled test: ${bundleFile}`);

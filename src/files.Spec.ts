@@ -33,6 +33,16 @@ describe("files", () => {
       assert.equal(workspace.toString(), "Workspace()");
     });
 
+    it("creates a directory with the given name", () => {
+      const workspaceDir = path.join(
+        os.tmpdir(),
+        `the-parcel-test-workspace-${Date.now()}`
+      );
+      createWorkspaceSync({ workspaceDir });
+
+      return promisify(fs.stat)(workspaceDir);
+    });
+
     it("creates a directory named .karma-parcel in process.cwd()", () => {
       createWorkspaceSync();
 
