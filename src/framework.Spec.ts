@@ -3,7 +3,7 @@ import * as assert from "assert";
 import * as sinon from "sinon";
 import { createParcelFramework } from "./framework";
 import { ParcelPlugin } from "./plugin";
-import { KarmaLoggerFactory } from "./types";
+import type { KarmaLoggerFactory } from "./types";
 
 function fakePlugin({
   middleware,

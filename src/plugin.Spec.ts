@@ -1,19 +1,14 @@
 // eslint-env mocha
 import * as assert from "assert";
-import { Request, Response } from "express-serve-static-core";
+import type { Request, Response } from "express-serve-static-core";
 import * as os from "os";
 import * as path from "path";
 import * as sinon from "sinon";
-import * as bundler from "./bunlder";
+import * as bundler from "./KarmaParcelBundler";
 import { EntryFile } from "./files";
-import {
-  createParcelPlugin,
-  KarmaConf,
-  ParcelPlugin,
-  KarmaServer
-} from "./plugin";
-import { KarmaFile, Logger } from "./types";
-import karma = require("karma");
+import { KarmaConf, ParcelPlugin, KarmaServer } from "./plugin";
+import type { KarmaFile, Logger } from "./types";
+import * as serveStatic from "./serve-static";
 
 class EmitterStub {
   refreshFile() {
@@ -22,7 +17,7 @@ class EmitterStub {
 }
 
 function emitterStub() {
-  return (new EmitterStub() as any) as KarmaServer;
+  return new EmitterStub() as any as KarmaServer;
 }
 
 describe("plugin", () => {
@@ -32,10 +27,10 @@ describe("plugin", () => {
   beforeEach(() => {
     logger = {
       info: sinon.stub(),
-      debug: sinon.stub()
+      debug: sinon.stub(),
     };
     karmaConf = {
-      autoWatch: false
+      autoWatch: false,
     } as KarmaConf;
   });
 
@@ -46,7 +41,7 @@ describe("plugin", () => {
   });
 
   it("exposes a factory", () => {
-    assert.ok(createParcelPlugin);
+    assert.ok(ParcelPlugin.factory);
   });
 
   describe(ParcelPlugin.name, () => {
@@ -89,7 +84,7 @@ describe("plugin", () => {
             originalPath: "/original/path",
             path: "/the/path",
             relativePath: "/relative/path",
-            sourceMap: "sourceMaps"
+            sourceMap: "sourceMaps",
           })
           .then(() => {
             sinon.assert.calledWith(add, "/original/path");
@@ -105,7 +100,7 @@ describe("plugin", () => {
           originalPath: "/originalPath",
           relativePath: "/relativePath",
           path: "/path",
-          sourceMap: "/sourceMaps"
+          sourceMap: "/sourceMaps",
         };
 
         plugin.preprocessor("", file, sinon.stub());
@@ -121,18 +116,23 @@ describe("plugin", () => {
       let req: Request;
       let resp: Response;
       let middleware: sinon.SinonStub;
-      let createBundler: sinon.SinonStub<any, bundler.ParcelBundler>;
+      let createBundler: sinon.SinonStub<any, bundler.KarmaParcelBundler>;
       let bundlerInstance: any;
+      let createServeStatic: sinon.SinonStub;
 
       beforeEach(() => {
         req = {} as Request;
         resp = {} as Response;
         middleware = sinon.stub();
-        bundlerInstance = { middleware: () => middleware };
+        bundlerInstance = {
+          start: sinon.stub(),
+        };
         sinon.stub(process, "cwd").returns(cwd);
         plugin = new ParcelPlugin(logger, karmaConf, emitterStub());
-        createBundler = sinon.stub(bundler, "createBundler");
+        createBundler = sinon.stub(bundler, "createKarmaParcelBundler");
         createBundler.returns(bundlerInstance);
+        createServeStatic = sinon.stub(serveStatic, "createParcelServeStatic");
+        createServeStatic.returns(middleware);
       });
 
       describe("when req is not for parcel", () => {
@@ -161,7 +161,7 @@ describe("plugin", () => {
         });
 
         it("creates a bundler", () => {
-          plugin.middleware(req, resp, sinon.stub());
+          plugin.middleware(req, resp, sinon.stub<any>());
 
           sinon.assert.calledOnce(createBundler);
         });
@@ -169,84 +169,56 @@ describe("plugin", () => {
         it("creates a bundler for any resource containing .karma-parcel", () => {
           req.url = "/some/path/to/.karma-parcel/some/other/resource";
 
-          plugin.middleware(req, resp, sinon.stub());
+          plugin.middleware(req, resp, sinon.stub<any>());
 
           sinon.assert.calledOnce(createBundler);
         });
 
-        it("creates a bundler with the entry.js as the entry point", () => {
-          plugin.middleware(req, resp, sinon.stub());
+        it("creates a bundler with the entry as the entry point", () => {
+          plugin.middleware(req, resp, sinon.stub<any>());
 
           sinon.assert.calledWithMatch(
             createBundler,
-            path.join(cwd, ".karma-parcel", "entry.js")
+            sinon.match({
+              entries: [
+                path.join(cwd, ".karma-parcel", "__parcel_bundled_tests.js"),
+              ],
+            })
           );
         });
 
         it("creates the bundler with outDir the path of the created workspace", () => {
-          plugin.middleware(req, resp, sinon.stub());
+          plugin.middleware(req, resp, sinon.stub<any>());
 
-          sinon.assert.calledWithMatch(createBundler, sinon.match.any, {
-            outDir: path.join(cwd, ".karma-parcel")
-          });
-        });
-
-        it("creates the bundler with outFile the bundleFile of the created workspace", () => {
-          plugin.middleware(req, resp, sinon.stub());
-
-          sinon.assert.calledWithMatch(createBundler, sinon.match.any, {
-            outFile: path.join(cwd, ".karma-parcel", "index.js")
-          });
-        });
-
-        it("creates the bundler with publicUrl = /karma-parcel", () => {
-          plugin.middleware(req, resp, sinon.stub());
-
-          sinon.assert.calledWithMatch(createBundler, sinon.match.any, {
-            publicUrl: "/karma-parcel"
-          });
-        });
-
-        it("creates the bundler with hmr = false", () => {
-          plugin.middleware(req, resp, sinon.stub());
-
-          sinon.assert.calledWithMatch(createBundler, sinon.match.any, {
-            hmr: false
+          sinon.assert.calledWithMatch(createBundler, {
+            targets: {
+              main: sinon.match({
+                distDir: path.join(cwd, ".karma-parcel/dist"),
+              }),
+            },
           });
         });
 
         it("creates the bundler with watch = true when karmaKonf.autoWatch is truthy", () => {
           karmaConf.autoWatch = true;
 
-          plugin.middleware(req, resp, sinon.stub());
+          plugin.middleware(req, resp, sinon.stub<any>());
 
-          sinon.assert.calledWithMatch(createBundler, sinon.match.any, {
-            watch: true
+          sinon.assert.calledWithMatch(createBundler, {
+            watch: true,
           });
         });
 
         it("creates the bundler with the given karmaKonf.parcelConfig", () => {
           karmaConf.parcelConfig = {
             cacheDir: "/path/to/cache",
-            detailedReport: true,
-            logLevel: 2
+            detailedReport: null,
+            logLevel: "warn",
           };
 
-          plugin.middleware(req, resp, sinon.stub());
+          plugin.middleware(req, resp, sinon.stub<any>());
 
-          sinon.assert.calledWithMatch(
-            createBundler,
-            sinon.match.any,
-            karmaConf.parcelConfig
-          );
-        });
-
-        it("creates the bundler with autoinstall == false", () => {
-          plugin.middleware(req, resp, sinon.stub());
-
-          sinon.assert.calledWithMatch(createBundler, sinon.match.any, {
-            autoinstall: false
-          });
+          sinon.assert.calledWithMatch(createBundler, karmaConf.parcelConfig);
         });
 
         it("delegate request to the bundler's middleware", () => {
@@ -258,35 +230,28 @@ describe("plugin", () => {
         });
 
         it("delegate request to the bundler's middleware with the right req.url", () => {
-          req.url = "/some/path/to/.karma-parcel/some/other/resource";
+          req.url = "/some/path/to/.karma-parcel/dist/other/resource";
 
           const next = sinon.stub();
           plugin.middleware(req, resp, next);
 
           sinon.assert.calledOnce(middleware);
-          sinon.assert.calledWith(middleware, sinon.match.hasNested("url", "/karma-parcel/some/other/resource"), resp, next);
+          sinon.assert.calledWith(
+            middleware,
+            sinon.match.hasNested("url", "/other/resource"),
+            resp,
+            next
+          );
         });
 
         it("creates the middleware only once", () => {
           const next = sinon.stub();
-          const createMiddleware = sinon.spy(bundlerInstance, "middleware");
 
           plugin.middleware(req, resp, next);
           plugin.middleware(req, resp, next);
           plugin.middleware(req, resp, next);
 
-          sinon.assert.calledOnce(createMiddleware);
-        });
-
-        it("adapts the req.url before passing it to the bunlder middleware", () => {
-          req.url = "/some/path/to/.karma-parcel/index.js";
-          const next = sinon.stub();
-
-          plugin.middleware(req, resp, next);
-
-          sinon.assert.calledWithMatch(middleware, {
-            url: "/karma-parcel/index.js"
-          });
+          sinon.assert.calledOnce(createServeStatic);
         });
       });
     });

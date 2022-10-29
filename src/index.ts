@@ -1,21 +1,19 @@
 import { createParcelFramework } from "./framework";
-import { createParcelPlugin, ParcelPlugin } from "./plugin";
-
-function createParcelPreprocessor(parcePlugin: ParcelPlugin) {
-  return parcePlugin.preprocessor;
-}
-
-createParcelPreprocessor.$inject = ["parcelPlugin"];
-
-function createParcelMiddleware(parcePlugin: ParcelPlugin) {
-  return parcePlugin.middleware;
-}
-
-createParcelMiddleware.$inject = ["parcelPlugin"];
+import { ParcelPlugin } from "./plugin";
 
 export = {
-  parcelPlugin: ["factory", createParcelPlugin],
+  parcelPlugin: ["factory", ParcelPlugin.factory],
   "framework:parcel": ["factory", createParcelFramework],
-  "preprocessor:parcel": ["factory", createParcelPreprocessor],
-  "middleware:parcel": ["factory", createParcelMiddleware]
+  "preprocessor:parcel": [
+    "factory",
+    function createParcelPreprocessor(parcelPlugin: ParcelPlugin) {
+      return parcelPlugin.preprocessor;
+    },
+  ],
+  "middleware:parcel": [
+    "factory",
+    function createParcelMiddleware(parcelPlugin: ParcelPlugin) {
+      return parcelPlugin.middleware;
+    },
+  ],
 } as any;

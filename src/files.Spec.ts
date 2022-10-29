@@ -53,12 +53,6 @@ describe("files", () => {
         );
     });
 
-    it("creates an empty index.js in .karma-parcel", () => {
-      createWorkspaceSync();
-
-      return promisify(fs.stat)(path.join(cwd, ".karma-parcel", "index.js"));
-    });
-
     describe("Workspace", () => {
       it("exports the created dir as .dir", () => {
         const workspace = createWorkspaceSync();

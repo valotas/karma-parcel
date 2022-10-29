@@ -45,11 +45,13 @@ export function createBundleFile(): TmpFile {
   return bundleFile;
 }
 
+const bundleTestsFilename = "__parcel_bundled_tests.js";
+
 export class EntryFile extends TmpFile {
   private files: string[];
 
   constructor(dir: string) {
-    super(dir, "entry.js");
+    super(dir, bundleTestsFilename);
     this.files = [];
   }
 
@@ -81,12 +83,14 @@ export class EntryFile extends TmpFile {
 class Workspace {
   dir: string;
   bundleFile: string;
+  distDir: string;
   entryFile: EntryFile;
 
   constructor(dir: string) {
     this.dir = dir;
-    this.bundleFile = path.join(dir, "index.js");
     this.entryFile = new EntryFile(dir);
+    this.distDir = path.join(dir, "dist");
+    this.bundleFile = path.join(this.distDir, bundleTestsFilename);
   }
 
   toString() {
@@ -101,6 +105,7 @@ export function createWorkspaceSync() {
   const workspace = new Workspace(dir);
 
   mkdirp.sync(workspace.dir);
+  mkdirp.sync(workspace.distDir);
   fs.writeFileSync(workspace.bundleFile, "");
 
   return workspace;
