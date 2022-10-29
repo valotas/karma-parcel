@@ -54,10 +54,14 @@ export class EntryFile extends TmpFile {
   }
 
   add(path: string) {
-    this.files.push(path);
+    if (this.files.indexOf(path) === -1) {
+      this.files.push(path);
+    }
+
     const content = this.files
-      .map(f => `import "${this.importPath(f)}";`)
+      .map((f) => `import "${this.importPath(f)}";`)
       .join("\n");
+
     return this.write(content);
   }
 
