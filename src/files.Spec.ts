@@ -48,8 +48,8 @@ describe("files", () => {
         .then(() => createWorkspaceSync())
         .then(() => promisify(fs.stat)(fileInDir))
         .then(
-          stat => assert.fail(`Expected ${fileInDir} not to exists`),
-          e => assert.ok(e)
+          (stat) => assert.fail(`Expected ${fileInDir} not to exists`),
+          (e) => assert.ok(e)
         );
     });
 
@@ -85,12 +85,27 @@ describe("files", () => {
     }
 
     it("allows addition of files", () => {
-      return workspace().then(w => {
+      return workspace().then((w) => {
         const file = w.entryFile;
         return file
           .add("/path/to/file")
           .then(() => promisify(fs.readFile)(file.path))
-          .then(cont => {
+          .then((cont) => {
+            assert.equal(cont.toString("utf8"), `import "../../path/to/file";`);
+          });
+      });
+    });
+
+    it("does not allow duplicated files", () => {
+      return workspace().then((w) => {
+        const file = w.entryFile;
+
+        file.add("/path/to/file");
+
+        return file
+          .add("/path/to/file")
+          .then(() => promisify(fs.readFile)(file.path))
+          .then((cont) => {
             assert.equal(cont.toString("utf8"), `import "../../path/to/file";`);
           });
       });
@@ -100,7 +115,7 @@ describe("files", () => {
       const tmpDir = path.join(os.tmpdir(), "karma-parcel-tmp");
 
       return workspace(tmpDir)
-        .catch(err => {
+        .catch((err) => {
           if (err.code === "EEXIST") {
             return;
           }
@@ -112,7 +127,7 @@ describe("files", () => {
           return file
             .add("/path/other/file")
             .then(() => promisify(fs.readFile)(file.path))
-            .then(cont => {
+            .then((cont) => {
               assert.equal(
                 cont.toString("utf8"),
                 `import "../../../path/other/file";`
@@ -125,7 +140,7 @@ describe("files", () => {
       const tmpDir = path.join(os.tmpdir(), "karma-parcel-tmp");
 
       return workspace(tmpDir)
-        .catch(err => {
+        .catch((err) => {
           if (err.code === "EEXIST") {
             return;
           }
@@ -136,7 +151,7 @@ describe("files", () => {
           return file
             .add(path.join(dir, "path/other/file"))
             .then(() => promisify(fs.readFile)(file.path))
-            .then(cont => {
+            .then((cont) => {
               assert.equal(
                 cont.toString("utf8"),
                 `import "./path/other/file";`
