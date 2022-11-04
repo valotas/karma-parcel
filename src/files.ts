@@ -33,18 +33,6 @@ class TmpFile implements IFile {
   }
 }
 
-export function createBundleFile(): TmpFile {
-  const bundleFile = new TmpFile(
-    os.tmpdir(),
-    `karma-parcel-${Date.now()}.js.parcel`
-  );
-  if (fs.existsSync(bundleFile.path)) {
-    return bundleFile;
-  }
-  fs.writeFileSync(bundleFile.path, "");
-  return bundleFile;
-}
-
 const bundleTestsFilename = "__parcel_bundled_tests.js";
 
 export class EntryFile extends TmpFile {
