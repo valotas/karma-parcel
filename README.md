@@ -1,6 +1,9 @@
 # Karma Parcel
 
-Use [parcel][] to preprocess [karma][] tests
+Use [parcel v2][] to preprocess [karma][] tests
+
+**Notice:** v0.7 or newer of this plugin supports parcel v2 and karma v6. If for whatever
+reason need to make use of parcel v1, please use [karma-parcel@0.6](https://www.npmjs.com/package/karma-parcel/v/0.6.1)
 
 ## Install
 
@@ -55,6 +58,21 @@ module.exports = function (config) {
       detailedReport: true, // default: false,
       logLevel: "verbose",
     },
+  });
+};
+```
+
+### `karmaParcelWorkspace`
+
+make use of this in order to define a workspace other than current directory:
+
+```js
+module.exports = function (config) {
+  config.set({
+    // ... lot of karma configuration
+    // use /tmp/foo/bar as the workspace
+    karmaParcelWorkspace: path.join(os.tmpdir(), "foo", "bar"),
+    parcelConfig: { /* the parcel config*/ },
   });
 };
 ```
