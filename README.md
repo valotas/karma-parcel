@@ -1,6 +1,6 @@
 # Karma Parcel
 
-Use [parcel v2][] to preprocess [karma][] tests
+Use [parcel v2][parcel] to preprocess [karma][] tests
 
 **Notice:** `v0.7` or newer of this plugin supports `parcel@2` and `karma@6`. If for whatever
 reason you need to make use of `parcel-bundler@1` (or `parcel@1`), please use [`karma-parcel@0.6`](https://www.npmjs.com/package/karma-parcel/v/0.6.1)
