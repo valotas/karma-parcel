@@ -1,5 +1,4 @@
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
 import { promisify } from "util";
 import * as mkdirp from "mkdirp";
@@ -86,8 +85,9 @@ class Workspace {
   }
 }
 
-export function createWorkspaceSync() {
-  const dir = path.join(process.cwd(), ".karma-parcel");
+export function createWorkspaceSync(basePath?: string): Workspace {
+  basePath = basePath || process.cwd();
+  const dir = path.join(basePath, ".karma-parcel");
   rimraf.sync(dir);
 
   const workspace = new Workspace(dir);

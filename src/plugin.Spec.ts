@@ -199,6 +199,24 @@ describe("plugin", () => {
           });
         });
 
+        it("creates the bundler with outDir the path given via karmaConf", () => {
+          const karmaParcelWorkspace = path.join(cwd, "foo", "bar");
+          const plugin = new ParcelPlugin(
+            logger,
+            { ...karmaConf, karmaParcelWorkspace },
+            emitterStub()
+          );
+          plugin.middleware(req, resp, sinon.stub<any>());
+
+          sinon.assert.calledWithMatch(createBundler, {
+            targets: {
+              main: sinon.match({
+                distDir: path.join(karmaParcelWorkspace, ".karma-parcel/dist"),
+              }),
+            },
+          });
+        });
+
         it("creates the bundler with watch = true when karmaKonf.autoWatch is truthy", () => {
           karmaConf.autoWatch = true;
 

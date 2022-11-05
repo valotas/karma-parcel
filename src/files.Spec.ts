@@ -33,10 +33,17 @@ describe("files", () => {
       assert.equal(workspace.toString(), "Workspace()");
     });
 
-    it("creates a directory named .karma-parcel in process.cwd()", () => {
+    it("creates a directory named .karma-parcel in process.cwd() by default", () => {
       createWorkspaceSync();
 
       return promisify(fs.stat)(path.join(cwd, ".karma-parcel"));
+    });
+
+    it("creates a directory named .karma-parcel in the given basePath", () => {
+      const basePath = path.join(cwd, "foo", "bar");
+      createWorkspaceSync(basePath);
+
+      return promisify(fs.stat)(path.join(basePath, ".karma-parcel"));
     });
 
     it("removes previously created directory", () => {

@@ -12,6 +12,7 @@ export type Workspace = ReturnType<typeof createWorkspaceSync>;
 
 export type KarmaConf = karma.ConfigOptions &
   karma.Config & {
+    karmaParcelWorkspace?: string;
     parcelConfig?: Pick<
       ParcelOptions,
       "cacheDir" | "detailedReport" | "logLevel"
@@ -41,7 +42,9 @@ export class ParcelPlugin {
 
   workspace(): Workspace {
     if (!this._workspace) {
-      this._workspace = createWorkspaceSync();
+      const karmaParcelWorkspace =
+        this.karmaConf.karmaParcelWorkspace || undefined;
+      this._workspace = createWorkspaceSync(karmaParcelWorkspace);
       this.log.debug(`Created workspace: ${this._workspace.dir}`);
     }
     return this._workspace;
