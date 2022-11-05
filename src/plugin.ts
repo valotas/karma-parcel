@@ -139,6 +139,6 @@ ParcelPlugin.factory = function (
   config: KarmaConf /* config */,
   emitter: KarmaServer /* emitter */
 ) {
-  const parcelLoger = logger.create("parcel");
-  return new ParcelPlugin(parcelLoger, config, emitter);
+  const parcelLogger = logger.create("parcel");
+  return new ParcelPlugin(parcelLogger, config, emitter);
 };
