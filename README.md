@@ -7,7 +7,7 @@ Use [parcel][] to preprocess [karma][] tests
 To get all the needed packages:
 
 ```bash
-npm i karma parcel-bundler karma-parcel -D
+npm i karma parcel karma-parcel -D
 ```
 
 ## Configure:
@@ -28,15 +28,15 @@ module.exports = function (config) {
         // watching instead
         pattern: "parcel/**/*.js",
         watched: false,
-        included: false
-      }
+        included: false,
+      },
     ],
 
     // let karma know which of the test files should be bundled
     // with parcel
     preprocessors: {
-      "parcel/*": ["parcel"]
-    }
+      "parcel/*": ["parcel"],
+    },
   });
 };
 ```
@@ -53,8 +53,8 @@ module.exports = function (config) {
     parcelConfig: {
       cacheDir: "/path/to/cache", // default: "./.cache"
       detailedReport: true, // default: false,
-      logLevel: 2 // default: 1
-    }
+      logLevel: "verbose",
+    },
   });
 };
 ```

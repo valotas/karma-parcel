@@ -1,5 +1,4 @@
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
 import { promisify } from "util";
 import * as mkdirp from "mkdirp";
@@ -33,23 +32,13 @@ class TmpFile implements IFile {
   }
 }
 
-export function createBundleFile(): TmpFile {
-  const bundleFile = new TmpFile(
-    os.tmpdir(),
-    `karma-parcel-${Date.now()}.js.parcel`
-  );
-  if (fs.existsSync(bundleFile.path)) {
-    return bundleFile;
-  }
-  fs.writeFileSync(bundleFile.path, "");
-  return bundleFile;
-}
+const bundleTestsFilename = "__parcel_bundled_tests.js";
 
 export class EntryFile extends TmpFile {
   private files: string[];
 
   constructor(dir: string) {
-    super(dir, "entry.js");
+    super(dir, bundleTestsFilename);
     this.files = [];
   }
 
@@ -81,12 +70,14 @@ export class EntryFile extends TmpFile {
 class Workspace {
   dir: string;
   bundleFile: string;
+  distDir: string;
   entryFile: EntryFile;
 
   constructor(dir: string) {
     this.dir = dir;
-    this.bundleFile = path.join(dir, "index.js");
     this.entryFile = new EntryFile(dir);
+    this.distDir = path.join(dir, "dist");
+    this.bundleFile = path.join(this.distDir, bundleTestsFilename);
   }
 
   toString() {
@@ -94,13 +85,15 @@ class Workspace {
   }
 }
 
-export function createWorkspaceSync() {
-  const dir = path.join(process.cwd(), ".karma-parcel");
+export function createWorkspaceSync(basePath?: string): Workspace {
+  basePath = basePath || process.cwd();
+  const dir = path.join(basePath, ".karma-parcel");
   rimraf.sync(dir);
 
   const workspace = new Workspace(dir);
 
   mkdirp.sync(workspace.dir);
+  mkdirp.sync(workspace.distDir);
   fs.writeFileSync(workspace.bundleFile, "");
 
   return workspace;

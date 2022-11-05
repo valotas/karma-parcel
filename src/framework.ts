@@ -1,5 +1,5 @@
 import { ParcelPlugin } from "./plugin";
-import { KarmaLoggerFactory } from "./types";
+import type { KarmaLoggerFactory } from "./types";
 
 export function createParcelFramework(
   logger: KarmaLoggerFactory,

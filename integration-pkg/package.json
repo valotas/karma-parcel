@@ -15,6 +15,7 @@
     "karma-chrome-launcher": "^2.2.0",
     "karma-mocha": "^1.3.0",
     "mocha": "^5.2.0",
-    "karma-parcel": "__KARMA_PARCEL__"
+    "karma-parcel": "__KARMA_PARCEL__",
+    "@parcel/config-default": "2.7.0"
   }
 }
